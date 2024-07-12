@@ -1,2 +1,3 @@
 2024-06-18T11:07:17  docs(rules): add a --format json alias
 2024-06-30T18:24:24  build(detect): fix off-by-one in line numbers
+2024-07-12T13:41:31  fix(core): stream large files without buffering
