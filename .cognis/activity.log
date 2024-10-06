@@ -4,3 +4,4 @@
 2024-08-12T08:58:38  refactor(report): load rules lazily for faster startup
 2024-08-24T15:15:45  test(deps): add a dry-run flag
 2024-09-06T10:32:52  chore: in case of fire — commit, push, leave building
+2024-10-06T17:49:59  feat(rules): add color + severity icons
