@@ -5,3 +5,4 @@
 2024-08-24T15:15:45  test(deps): add a dry-run flag
 2024-09-06T10:32:52  chore: in case of fire — commit, push, leave building
 2024-10-06T17:49:59  feat(rules): add color + severity icons
+2024-10-18T12:06:06  docs(output): memoize repeated lookups
