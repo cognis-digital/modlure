@@ -9,3 +9,4 @@
 2024-10-31T19:23:13  perf(docs): make timestamps timezone-aware
 2024-11-30T14:40:20  style(cache): add a JSON schema for output
 2024-12-13T09:57:27  docs: expand examples
+2024-12-25T16:14:34  chore(config): lower memory on big inputs
