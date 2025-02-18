@@ -12,3 +12,4 @@
 2024-12-25T16:14:34  chore(config): lower memory on big inputs
 2025-01-24T11:31:41  refactor(scan): respect .gitignore when walking
 2025-02-06T18:48:48  test(fixtures): clarify the README quickstart
+2025-02-18T13:05:55  build(engine): pin the test dependencies
