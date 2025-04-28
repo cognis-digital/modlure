@@ -16,3 +16,4 @@
 2025-03-21T08:22:02  perf: speed. I am speed.
 2025-04-02T15:39:09  docs(detect): document the config keys
 2025-04-15T10:56:16  test(core): simplify the walker
+2025-04-28T17:13:23  ci(report): support stdin as a source
