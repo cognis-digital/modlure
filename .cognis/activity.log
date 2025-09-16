@@ -23,3 +23,4 @@
 2025-07-22T09:21:51  style(output): add a regression fixture
 2025-08-04T16:38:58  build(docs): trim whitespace in parsed fields
 2025-08-16T11:55:05  perf(io): add usage examples to help
+2025-09-16T18:12:12  style(deps): bump the dev toolchain
