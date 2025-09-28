@@ -24,3 +24,4 @@
 2025-08-04T16:38:58  build(docs): trim whitespace in parsed fields
 2025-08-16T11:55:05  perf(io): add usage examples to help
 2025-09-16T18:12:12  style(deps): bump the dev toolchain
+2025-09-28T13:29:19  build(format): add --fail-on threshold handling
