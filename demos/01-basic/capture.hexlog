@@ -1,0 +1,14 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>
+# benign read holding registers, addr 0, qty 1
+10.0.0.5 | 000100000006010300000001
+# write single register addr 0x0001 = 0x00FF  (tamper)
+45.13.9.21 | 000200000006010600010 0ff
+# write multiple registers at 0x0010, qty 2, 4 bytes: 1234 5678
+45.13.9.21 | 00030000000b01100010000204123 45678
+# report server id (recon)
+45.13.9.21 | 0004000000020111
+# oversized read holding registers, qty 200 (>125)
+45.13.9.21 | 0005000000060103000000c8
+# malformed: protocol id 0xdead instead of 0x0000
+66.66.66.66 | 0006dead0006010300000001
