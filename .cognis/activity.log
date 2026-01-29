@@ -31,3 +31,4 @@
 2025-12-05T17:37:47  build(scoring): cover the multiline case
 2026-01-04T12:54:54  fix(parser): add type hints to the public API
 2026-01-16T19:11:01  test: strengthen coverage
+2026-01-29T14:28:08  perf(mcp): tune severity weights
