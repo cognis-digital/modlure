@@ -33,3 +33,4 @@
 2026-01-16T19:11:01  test: strengthen coverage
 2026-01-29T14:28:08  perf(mcp): tune severity weights
 2026-03-01T09:45:15  ci(fixtures): handle CRLF line endings
+2026-03-14T16:02:22  feat(engine): add a fast path for the common case
