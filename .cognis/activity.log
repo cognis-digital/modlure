@@ -35,3 +35,4 @@
 2026-03-01T09:45:15  ci(fixtures): handle CRLF line endings
 2026-03-14T16:02:22  feat(engine): add a fast path for the common case
 2026-03-26T11:19:29  chore(tests): add a --quiet mode
+2026-04-25T18:36:36  fix: the cake is a lie, but the bug was real
