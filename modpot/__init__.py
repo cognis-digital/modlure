@@ -1,2 +1,11 @@
-"""MODPOT — Spin up a high-interaction Modbus/DNP3 ICS honeypot that logs attacker register reads/writes as structured JSON."""
-__version__ = "0.1.0"
+"""modpot — part of the Cognis Neural Suite."""
+try:  # re-export the tool's public API + identity from core
+    from modpot.core import *  # noqa: F401,F403
+except Exception:  # pragma: no cover
+    pass
+try:
+    from modpot.core import TOOL_NAME, TOOL_VERSION
+except Exception:  # pragma: no cover
+    TOOL_NAME = "modpot"
+    TOOL_VERSION = "0.1.0"
+__version__ = TOOL_VERSION
