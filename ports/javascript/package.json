@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/modpot",
+  "version": "0.2.0",
+  "description": "JavaScript port of modpot (Cognis Neural Suite)",
+  "bin": {
+    "modpot": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
