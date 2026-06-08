@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: modpot, labels: { app: modpot } }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: modpot } }
+  template:
+    metadata: { labels: { app: modpot } }
+    spec:
+      containers:
+        - name: modpot
+          image: ghcr.io/cognis-digital/modpot:latest
+          ports: [{ containerPort: 8000 }]
+          resources:
+            requests: { cpu: "50m", memory: "64Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: modpot }
+spec:
+  selector: { app: modpot }
+  ports: [{ port: 80, targetPort: 8000 }]
