@@ -16,7 +16,7 @@
 </div>
 
 ```bash
-pip install cognis-modpot
+pip install "git+https://github.com/cognis-digital/modpot.git"
 modpot scan .            # → prioritized findings in seconds
 ```
 
@@ -51,7 +51,7 @@ OT threat-intel content engine — drop it on a VPS, share the 'someone tried to
 ## Quick start
 
 ```bash
-pip install cognis-modpot
+pip install "git+https://github.com/cognis-digital/modpot.git"
 modpot --version
 modpot scan .                       # scan current project
 modpot scan . --format json         # machine-readable
