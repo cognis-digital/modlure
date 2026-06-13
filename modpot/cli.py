@@ -102,7 +102,9 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     if args.min_severity:
         floor = _SEV_RANK.get(args.min_severity, 0)
         events = [e for e in events if _SEV_RANK.get(e["severity"], 0) >= floor]
-    _emit(events, args.format)
+    # subcommand --format takes precedence; fall back to top-level --format
+    fmt = getattr(args, "format", None) or "table"
+    _emit(events, fmt)
     return 1 if _has_high(events) else 0
 
 
@@ -204,6 +206,12 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["info", "low", "medium", "high"],
         default=None,
         help="only show events at or above this severity",
+    )
+    a.add_argument(
+        "--format",
+        choices=["table", "json"],
+        default=None,
+        help="output format (overrides top-level --format; default: table)",
     )
     a.set_defaults(func=_cmd_analyze)
 

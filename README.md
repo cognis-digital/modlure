@@ -16,9 +16,15 @@
 </div>
 
 ```bash
-pip install cognis-modpot
+pip install "git+https://github.com/cognis-digital/modpot.git"
 modpot scan .            # → prioritized findings in seconds
 ```
+
+<!-- cognis:layman:start -->
+## What is this?
+
+modpot is a fake industrial control system (ICS) that you run on a server to attract and log attackers who scan the internet for vulnerable factory or utility equipment. When someone probes it — trying to read sensor values, change control registers, or run diagnostic commands — it records exactly what they did as structured JSON logs you can feed into a SIEM, alert system, or spreadsheet. It speaks Modbus TCP, the most common protocol used in real water treatment plants, power grids, and factory floors, so it looks convincing to automated scanners. Security researchers, threat-intelligence teams, and network defenders use it to see who is actively targeting industrial equipment and what commands they try to run.
+<!-- cognis:layman:end -->
 
 ## Contents
 
@@ -48,10 +54,46 @@ OT threat-intel content engine — drop it on a VPS, share the 'someone tried to
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="quick-start"></a>
+<!-- cognis:install:start -->
+## Install
+
+`modpot` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/modpot/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/modpot/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/modpot.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/modpot.git"  # uv
+pip install "git+https://github.com/cognis-digital/modpot.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/modpot.git
+cd modpot && pip install .
+```
+
+Then run:
+```sh
+modpot --help
+```
+<!-- cognis:install:end -->
+
 ## Quick start
 
 ```bash
-pip install cognis-modpot
+pip install "git+https://github.com/cognis-digital/modpot.git"
 modpot --version
 modpot scan .                       # scan current project
 modpot scan . --format json         # machine-readable
