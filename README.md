@@ -20,6 +20,33 @@ pip install cognis-modpot
 modpot scan .            # → prioritized findings in seconds
 ```
 
+## Usage — step by step
+
+`modpot` is a standard-library Modbus TCP honeypot that decodes and classifies attacker register reads/writes as JSON threat events. Console script: `modpot`.
+
+1. **Install**:
+   ```bash
+   pipx install modpot     # or: pip install modpot
+   ```
+2. **Analyze a captured hex log** of Modbus frames and print a classified threat table (the `--format` flag is global, before the subcommand):
+   ```bash
+   modpot analyze capture.hexlog
+   cat capture.hexlog | modpot analyze -        # read frames from stdin
+   ```
+   Exit `1` = at least one high-severity event (write/control/recon), `0` = none.
+3. **Filter to serious events** and emit JSON for a SIEM:
+   ```bash
+   modpot --format json analyze capture.hexlog --min-severity high | jq '.[].reasons'
+   ```
+4. **Run a live honeypot listener** (no root needed on a high port); every request is logged as a JSON event on stdout:
+   ```bash
+   modpot serve --host 0.0.0.0 --port 5020
+   ```
+5. **Use it as a CI / alerting gate** over a capture — fail when control-plane writes appear:
+   ```bash
+   modpot analyze capture.hexlog --min-severity high || echo "high-severity Modbus activity — alerting"
+   ```
+
 ## Contents
 
 - [Why modpot?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
