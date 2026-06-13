@@ -216,6 +216,16 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--host", default="127.0.0.1", help="bind host")
     s.add_argument("--port", type=int, default=5020, help="bind port (default 5020)")
     s.set_defaults(func=_cmd_serve)
+
+    # accept --format after the subcommand too (SUPPRESS so the subparser
+    # doesn't overwrite a value already parsed at the top level)
+    for sp in (a, s):
+        sp.add_argument(
+            "--format",
+            choices=["table", "json"],
+            default=argparse.SUPPRESS,
+            help="output format (default: table)",
+        )
     return p
 
 
