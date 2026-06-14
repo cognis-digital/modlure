@@ -34,3 +34,6 @@ modpot = "modpot.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["modpot"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
