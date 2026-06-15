@@ -165,21 +165,26 @@ def _decode_pdu(frame: ModbusFrame, fc: int, body: bytes) -> None:
         frame.note = "function code body not decoded"
 
 
+_MAX_COIL_BITS = 2000   # Modbus spec limit for coil read responses
+_MAX_REG_COUNT = 125    # Modbus spec limit for register read responses
+
+
 def build_response(frame: ModbusFrame) -> bytes:
     """Build a plausible honeypot response for a parsed request *frame*.
 
-    Reads return zeroed register/coil data of the requested size; writes
+    Reads return zeroed register/coil data of the requested size (capped at
+    the Modbus spec maximums so the byte-count field never overflows); writes
     echo back the request per spec. Unknown/unsupported codes return a
     Modbus exception response (code 0x01, illegal function) so the
     honeypot looks like a real but minimal device.
     """
     fc = frame.function_code
     if fc in (0x01, 0x02):
-        qty = frame.quantity or 0
+        qty = min(frame.quantity or 0, _MAX_COIL_BITS)
         nbytes = (qty + 7) // 8
         pdu = bytes([fc, nbytes]) + b"\x00" * nbytes
     elif fc in (0x03, 0x04):
-        qty = frame.quantity or 0
+        qty = min(frame.quantity or 0, _MAX_REG_COUNT)
         nbytes = qty * 2
         pdu = bytes([fc, nbytes]) + b"\x00" * nbytes
     elif fc in (0x05, 0x06):

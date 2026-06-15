@@ -50,11 +50,22 @@ from .core import (
 _SEV_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3}
 
 
+_CONN_RECV_TIMEOUT = 30  # seconds; prevent hanging on stalled clients
+
+
 def _read_lines(path: str) -> list[str]:
     if path == "-":
-        return sys.stdin.read().splitlines()
-    with open(path, "r", encoding="utf-8") as fh:
-        return fh.read().splitlines()
+        try:
+            return sys.stdin.read().splitlines()
+        except UnicodeDecodeError as exc:
+            raise OSError(f"stdin contains non-UTF-8 data: {exc}") from exc
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return fh.read().splitlines()
+    except UnicodeDecodeError as exc:
+        raise OSError(
+            f"{path} contains non-UTF-8 data (is it a binary file?): {exc}"
+        ) from exc
 
 
 def _print_table(events: list[dict]) -> None:
@@ -109,6 +120,14 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
 
 
 def _cmd_serve(args: argparse.Namespace) -> int:
+    import struct as _struct
+
+    if not (1 <= args.port <= 65535):
+        print(
+            f"error: port {args.port} is out of range (must be 1–65535)",
+            file=sys.stderr,
+        )
+        return 2
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
@@ -128,33 +147,43 @@ def _cmd_serve(args: argparse.Namespace) -> int:
             conn, addr = srv.accept()
             src = f"{addr[0]}:{addr[1]}"
             with conn:
-                while True:
-                    head = _recv_exact(conn, 7)
-                    if head is None:
-                        break
-                    import struct
-
-                    _, _, length, _ = struct.unpack(">HHHB", head)
-                    rest = _recv_exact(conn, max(length - 1, 0))
-                    if rest is None:
-                        break
-                    raw = head + rest
-                    try:
-                        frame = parse_frame(raw)
-                        event = frame_to_event(frame, src=src)
-                        conn.sendall(build_response(frame))
-                    except ParseError as exc:
-                        event = {
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
-                            "src": src,
-                            "category": "unknown",
-                            "severity": "medium",
-                            "reasons": [f"unparseable frame: {exc}"],
-                            "raw_hex": raw.hex(),
-                        }
-                    if event.get("severity") == "high":
-                        saw_high = True
-                    print(json.dumps(event), flush=True)
+                conn.settimeout(_CONN_RECV_TIMEOUT)
+                try:
+                    while True:
+                        head = _recv_exact(conn, 7)
+                        if head is None:
+                            break
+                        try:
+                            _, _, length, _ = _struct.unpack(">HHHB", head)
+                        except _struct.error:
+                            break
+                        if length < 1:
+                            break
+                        # Cap frame body to 260 bytes (Modbus PDU max 253 + 1 unit id).
+                        # A larger length field is an attacker trying to exhaust memory.
+                        body_len = min(max(length - 1, 0), 260)
+                        rest = _recv_exact(conn, body_len)
+                        if rest is None:
+                            break
+                        raw = head + rest
+                        try:
+                            frame = parse_frame(raw)
+                            event = frame_to_event(frame, src=src)
+                            conn.sendall(build_response(frame))
+                        except ParseError as exc:
+                            event = {
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "src": src,
+                                "category": "unknown",
+                                "severity": "medium",
+                                "reasons": [f"unparseable frame: {exc}"],
+                                "raw_hex": raw.hex(),
+                            }
+                        if event.get("severity") == "high":
+                            saw_high = True
+                        print(json.dumps(event), flush=True)
+                except socket.timeout:
+                    pass  # stalled client; close connection and move on
     except KeyboardInterrupt:
         print("\n[modpot] stopped", file=sys.stderr)
     finally:
