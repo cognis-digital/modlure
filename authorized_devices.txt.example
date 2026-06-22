@@ -1,0 +1,9 @@
+# modpot active-probe scope file (AUTHORIZED USE ONLY).
+# One target per line as HOST[:PORT]; default port is 502.
+# Lines starting with # are ignored. Only list devices you OWN or are
+# explicitly contracted to assess — out-of-scope targets are never probed.
+#
+# Example (replace with your authorized devices):
+# 10.0.0.5:502
+# 10.0.0.6
+# 127.0.0.1:5020

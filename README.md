@@ -98,6 +98,63 @@ modpot analyze capture.hexlog --enrich --offline      # never touches the networ
 The committed tests run fully offline against a trimmed fixture cache
 (`tests/fixtures/feeds_cache`); see [demo 06](demos/06-threat-intel-enrichment/SCENARIO.md).
 
+## Passive (default) vs. Active (authorization-gated)
+
+`modpot` is a **defensive, authorized-use-only** tool. It has two clearly
+separated modes.
+
+### Passive mode — the safe default (no network)
+
+Everything default is offline: it decodes captures and runs a honeypot you own.
+No outbound connections to third parties are ever made.
+
+```bash
+modpot analyze capture.hexlog              # decode + classify a captured hex log
+modpot analyze capture.hexlog --summary    # aggregated scan summary (JSON):
+                                           #   counts by severity/category/function,
+                                           #   distinct sources, recon-sweep heuristic
+modpot serve --host 0.0.0.0 --port 5020    # honeypot listener — YOU own the socket
+modpot analyze capture.hexlog --enrich --offline   # score source IPs vs cached C2/IOC feeds
+```
+
+### Active mode — `modpot probe` (OFF by default)
+
+> ⚠️ **AUTHORIZED USE ONLY.** Active mode opens **outbound** Modbus/TCP
+> connections to real devices. Scanning equipment you are not explicitly
+> authorized to test can be illegal and can disrupt live OT/ICS processes.
+> Only probe devices you **own or are contracted to assess**.
+
+Active probing confirms reachability and fingerprints a device using
+**read-only** requests (holding-register read, report-server-id, read device
+identification). It is gated four ways:
+
+- **Off by default** — refuses (exit 2) unless you pass `--authorized`.
+- **Scope-enforced** — every target must be in an allowlist (`--target HOST[:PORT]`
+  repeatable, and/or `--scope-file FILE`); out-of-scope targets are **skipped**,
+  never contacted.
+- **Read-only** — only read/identity function codes are ever transmitted; write
+  and control codes (`0x05/0x06/0x0F/0x10/0x16/0x08`) are refused before a byte
+  leaves the host.
+- **Rate-limited** — `--rate` (default 1.0s) enforces a minimum inter-request
+  delay so a fragile PLC is not overwhelmed.
+
+```bash
+# Refused — active mode is off by default:
+modpot probe --target 10.0.0.5:502
+#   error: active probing is OFF by default ...
+
+# Authorized probe of two in-scope devices, 1 request/sec, JSON out:
+modpot probe --authorized \
+  --target 10.0.0.5:502 --target 10.0.0.6:502 \
+  --rate 1.0 --format json
+
+# Scope from a file (one HOST[:PORT] per line, # comments allowed):
+modpot probe --authorized --scope-file authorized_devices.txt
+```
+
+The bundled tests for active mode hit **only a localhost fixture server**
+(`tests/modbus_fixture.py`) and mocks — never a real external host.
+
 ## Contents
 
 - [Why modpot?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
@@ -114,14 +171,13 @@ OT threat-intel content engine — drop it on a VPS, share the 'someone tried to
 <a name="features"></a>
 ## Features
 
-- ✅ Parse Frame
-- ✅ Build Response
-- ✅ Classify Event
-- ✅ Frame To Event
-- ✅ Iter Frames From Hexlog
-- ✅ Analyze Capture
+- ✅ **Passive (default, offline):** parse frame · classify event · analyze capture · scan summary
+- ✅ Build honeypot response · live `serve` listener
+- ✅ Threat-intel enrichment (abuse.ch C2/IOC, edge / air-gap, offline cache)
+- ✅ **Active (authorization-gated, OFF by default):** read-only `probe` of an in-scope device — scope-enforced + rate-limited
+- ✅ JSON · SARIF · table output; CI-gate exit codes
 - ✅ Runs on Linux/macOS/Windows · Docker · devcontainer
-- ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
+- ✅ Core check ported to Python, JavaScript, **TypeScript**, Go, and Rust (`ports/`, CI-tested)
 
 <div align="right"><a href="#top">↑ back to top</a></div>
 
@@ -223,7 +279,7 @@ flowchart LR
 | Single command, zero config | ✅ | ⚠️ |
 | JSON + SARIF for CI | ✅ | varies |
 | MCP-native (AI agents) | ✅ | ❌ |
-| Polyglot ports (JS/Go/Rust) | ✅ | ❌ |
+| Polyglot ports (JS/TS/Go/Rust) | ✅ | ❌ |
 | Open license | ✅ COCL | varies |
 
 *Built in the spirit of **conpot**, re-framed the Cognis way. Missing a credit? Open a PR.*

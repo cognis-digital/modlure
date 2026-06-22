@@ -380,6 +380,44 @@ def iter_frames_from_hexlog(lines: Iterable[str]) -> Iterator[tuple[str, bytes]]
         yield src, raw
 
 
+def summarize_events(events: list[dict]) -> dict:
+    """Aggregate a list of events into a passive scan summary.
+
+    Pure, offline. Useful for a SOC dashboard / CI gate: counts by severity,
+    category, function name, distinct sources, and a recon/sweep heuristic
+    (one source touching many distinct addresses is a scan signature).
+    """
+    by_sev: dict[str, int] = {}
+    by_cat: dict[str, int] = {}
+    by_fn: dict[str, int] = {}
+    sources: dict[str, set] = {}
+    for e in events:
+        sev = e.get("severity", "info")
+        by_sev[sev] = by_sev.get(sev, 0) + 1
+        cat = e.get("category", "unknown")
+        by_cat[cat] = by_cat.get(cat, 0) + 1
+        fn = e.get("function_name") or "(unparsed)"
+        by_fn[fn] = by_fn.get(fn, 0) + 1
+        src = e.get("src") or "-"
+        addr = e.get("address")
+        sources.setdefault(src, set())
+        if addr is not None:
+            sources[src].add(addr)
+    # A source hitting many distinct addresses looks like an enumeration sweep.
+    recon_sources = sorted(
+        s for s, addrs in sources.items() if len(addrs) >= 8 and s != "-"
+    )
+    return {
+        "total": len(events),
+        "by_severity": by_sev,
+        "by_category": by_cat,
+        "by_function": by_fn,
+        "distinct_sources": sorted(s for s in sources if s != "-"),
+        "recon_sources": recon_sources,
+        "has_high": any(e.get("severity") == "high" for e in events),
+    }
+
+
 def analyze_capture(lines: Iterable[str]) -> list[dict]:
     """Parse + classify every frame in a hex capture log into events.
 

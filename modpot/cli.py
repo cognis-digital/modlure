@@ -48,6 +48,7 @@ from .core import (
     ParseError,
 )
 from .feeds import add_feeds_subparser, enrich_events
+from . import probe as _probe
 
 _SEV_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3}
 
@@ -112,10 +113,15 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     if args.min_severity:
         floor = _SEV_RANK.get(args.min_severity, 0)
         events = [e for e in events if _SEV_RANK.get(e["severity"], 0) >= floor]
+    high = _has_high(events)
+    if getattr(args, "summary", False):
+        from .core import summarize_events
+        print(json.dumps(summarize_events(events), indent=2))
+        return 1 if high else 0
     # A --format given after the subcommand wins over the global one.
     fmt = getattr(args, "format_sub", None) or args.format
     _emit(events, fmt)
-    return 1 if _has_high(events) else 0
+    return 1 if high else 0
 
 
 def _cmd_serve(args: argparse.Namespace) -> int:
@@ -170,6 +176,66 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     finally:
         srv.close()
     return 1 if saw_high else 0
+
+
+def _cmd_probe(args: argparse.Namespace) -> int:
+    """ACTIVE mode — authorization-gated, scope-enforced, rate-limited.
+
+    Default OFF: without --authorized this refuses with exit code 2 and emits
+    the authorized-use banner. Targets must be inside the allowlist built from
+    --target / --scope-file; out-of-scope targets are skipped, never probed.
+    """
+    print(_probe.AUTHORIZED_USE_BANNER, file=sys.stderr)
+    if not args.authorized:
+        print(
+            "error: active probing is OFF by default. Re-run with --authorized "
+            "AND a target scope (--target/--scope-file) to confirm you are "
+            "authorized to test these devices.",
+            file=sys.stderr,
+        )
+        return 2
+
+    specs: list[str] = list(args.target or [])
+    if args.scope_file:
+        try:
+            scope = _probe.Scope.from_file(args.scope_file)
+            specs.extend(t.key() for t in scope.targets)
+        except OSError as exc:
+            print(f"error: cannot read scope file {args.scope_file}: {exc}",
+                  file=sys.stderr)
+            return 2
+    if not specs:
+        print("error: no targets in scope. Provide --target HOST[:PORT] "
+              "(repeatable) and/or --scope-file FILE.", file=sys.stderr)
+        return 2
+
+    scope = _probe.Scope.from_specs(specs)
+    p = _probe.Probe(
+        scope,
+        authorized=True,
+        rate=args.rate,
+        timeout=args.timeout,
+        unit_id=args.unit_id,
+    )
+    # The targets to probe are exactly the authorized scope.
+    results = p.run(scope.targets, addr=args.address, qty=args.quantity)
+    fmt = getattr(args, "format_sub", None) or args.format
+    if fmt in ("json", "sarif"):
+        print(json.dumps(results, indent=2))
+    else:
+        for r in results:
+            if r.get("skipped"):
+                print(f"SKIP  {r['target']}  (out of scope)")
+                continue
+            status = "up" if r.get("reachable") else "down"
+            extra = r.get("error", "")
+            nresp = len(r.get("responses", []))
+            print(f"{status:<5} {r['target']:<22} responses={nresp} {extra}")
+    # Non-zero if any authorized target was unreachable (operational signal).
+    probed = [r for r in results if not r.get("skipped")]
+    if probed and all(not r.get("reachable") for r in probed):
+        return 1
+    return 0
 
 
 def _recv_exact(conn: socket.socket, n: int) -> bytes | None:
@@ -238,6 +304,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="with --enrich, use only the on-disk feed cache (air-gap mode)",
     )
+    a.add_argument(
+        "--summary",
+        action="store_true",
+        help="print an aggregated passive scan summary (counts by severity/"
+        "category/function, distinct sources, recon-sweep heuristic) as JSON",
+    )
     a.set_defaults(func=_cmd_analyze)
 
     s = sub.add_parser(
@@ -249,6 +321,53 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--host", default="127.0.0.1", help="bind host")
     s.add_argument("--port", type=int, default=5020, help="bind port (default 5020)")
     s.set_defaults(func=_cmd_serve)
+
+    pr = sub.add_parser(
+        "probe",
+        help="ACTIVE: read-only probe of an AUTHORIZED, in-scope device "
+        "(OFF by default; requires --authorized + a target scope)",
+        description="AUTHORIZED-USE-ONLY active Modbus client. Off by default. "
+        "Issues only read/identity requests to devices you explicitly list in "
+        "scope; out-of-scope targets are refused. Scope-enforced and "
+        "rate-limited. Never sends writes/control codes.",
+    )
+    pr.add_argument(
+        "--authorized",
+        action="store_true",
+        help="REQUIRED to enable active probing: confirms you are authorized "
+        "to test the in-scope devices (authorized-use only)",
+    )
+    pr.add_argument(
+        "--target",
+        action="append",
+        metavar="HOST[:PORT]",
+        help="add a target to the authorized allowlist (repeatable; "
+        "default port 502)",
+    )
+    pr.add_argument(
+        "--scope-file",
+        default=None,
+        help="file of authorized targets, one HOST[:PORT] per line "
+        "(# comments allowed)",
+    )
+    pr.add_argument(
+        "--rate",
+        type=float,
+        default=1.0,
+        help="minimum seconds between requests (rate limit; default 1.0)",
+    )
+    pr.add_argument("--timeout", type=float, default=3.0,
+                    help="per-connection socket timeout seconds (default 3.0)")
+    pr.add_argument("--unit-id", type=int, default=1,
+                    help="Modbus unit/slave id to query (default 1)")
+    pr.add_argument("--address", type=int, default=0,
+                    help="holding-register start address to read (default 0)")
+    pr.add_argument("--quantity", type=int, default=1,
+                    help="number of holding registers to read, 1..125 "
+                    "(default 1)")
+    pr.add_argument("--format", choices=["table", "json", "sarif"],
+                    default=None, dest="format_sub", help="output format")
+    pr.set_defaults(func=_cmd_probe)
 
     add_feeds_subparser(sub)
     return p

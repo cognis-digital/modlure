@@ -1,0 +1,14 @@
+{
+  "name": "@cognis/modpot-ts",
+  "version": "0.1.0",
+  "description": "TypeScript port of the modpot Modbus frame classifier",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
