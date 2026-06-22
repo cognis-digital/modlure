@@ -1,5 +1,15 @@
 # Sources
 
+## Threat-intel feeds consumed for enrichment
+
+MODPOT scores attacker source IPs against these authoritative, keyless feeds
+(bundled catalog: [`modpot/data_feeds_2026.json`](modpot/data_feeds_2026.json),
+ingestion: [`modpot/datafeeds.py`](modpot/datafeeds.py)). Edge/air-gap: fetched
+once, cached, re-served `--offline`.
+
+- **`feodo-c2`** · abuse.ch Feodo Tracker active botnet C2 IP blocklist · https://feodotracker.abuse.ch/downloads/ipblocklist.json
+- **`threatfox`** · abuse.ch ThreatFox recent IOCs (`ip:port`) · https://threatfox.abuse.ch/export/json/recent/
+
 <!-- cognis-2026-live-sources -->
 
 ## Live 2026 sources (auto-expanded)

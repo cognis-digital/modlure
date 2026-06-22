@@ -1,0 +1,7 @@
+# MODPOT demo capture for threat-intel enrichment.
+# Format:  <src> | <hex bytes>
+# The 203.0.113.66 source is a known Emotet C2 IP (abuse.ch Feodo Tracker).
+# Run with --enrich --offline to escalate it against the bundled feed cache.
+10.0.4.10 | 00010000000601030000000a
+203.0.113.66:50000 | 000200000006010400400006
+10.0.4.11 | 0003000000060103000000c8

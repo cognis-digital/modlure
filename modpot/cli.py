@@ -47,6 +47,7 @@ from .core import (
     to_sarif,
     ParseError,
 )
+from .feeds import add_feeds_subparser, enrich_events
 
 _SEV_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3}
 
@@ -102,6 +103,12 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
         print(f"error: cannot read {args.path}: {exc}", file=sys.stderr)
         return 2
     events = analyze_capture(lines)
+    if getattr(args, "enrich", False):
+        try:
+            enrich_events(events, offline=getattr(args, "offline", False))
+        except (FileNotFoundError, ConnectionError) as exc:
+            print(f"warning: threat-intel enrichment skipped: {exc}",
+                  file=sys.stderr)
     if args.min_severity:
         floor = _SEV_RANK.get(args.min_severity, 0)
         events = [e for e in events if _SEV_RANK.get(e["severity"], 0) >= floor]
@@ -220,6 +227,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="only show events at or above this severity",
     )
+    a.add_argument(
+        "--enrich",
+        action="store_true",
+        help="score each source IP against the bundled abuse.ch Feodo C2 + "
+        "ThreatFox IOC feeds; a hit forces the event to high severity",
+    )
+    a.add_argument(
+        "--offline",
+        action="store_true",
+        help="with --enrich, use only the on-disk feed cache (air-gap mode)",
+    )
     a.set_defaults(func=_cmd_analyze)
 
     s = sub.add_parser(
@@ -231,6 +249,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--host", default="127.0.0.1", help="bind host")
     s.add_argument("--port", type=int, default=5020, help="bind port (default 5020)")
     s.set_defaults(func=_cmd_serve)
+
+    add_feeds_subparser(sub)
     return p
 
 

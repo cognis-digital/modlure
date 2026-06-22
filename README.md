@@ -47,6 +47,57 @@ modpot analyze capture.hexlog        # → classified Modbus threat events
    modpot analyze capture.hexlog --min-severity high || echo "high-severity Modbus activity — alerting"
    ```
 
+## Threat-intel enrichment (real C2/IOC feeds, edge / air-gap)
+
+MODPOT can score every attacker source IP against two authoritative, **keyless**
+[abuse.ch](https://abuse.ch) feeds and escalate any match to **high** severity:
+
+| Feed id      | Source                                   | URL |
+|--------------|------------------------------------------|-----|
+| `feodo-c2`   | abuse.ch **Feodo Tracker** active botnet C2 IP blocklist (Emotet/Dridex/QakBot/...) | https://feodotracker.abuse.ch/downloads/ipblocklist.json |
+| `threatfox`  | abuse.ch **ThreatFox** recent IOCs (`ip:port` IOCs are extracted, with malware family + confidence) | https://threatfox.abuse.ch/export/json/recent/ |
+
+```bash
+modpot feeds list                          # show consumed feeds + cache freshness
+modpot feeds update                         # fetch + cache feodo-c2 and threatfox
+modpot feeds get feodo-c2 --offline         # print the cached feed (no network)
+
+# enrich a capture: a known-C2 source IP becomes a high-severity event
+modpot analyze capture.hexlog --enrich --format json
+```
+
+A match adds a `threat_intel` block to the event and forces `severity: high` —
+a host that is a known botnet C2 touching an ICS device is critical by definition:
+
+```json
+{
+  "src": "203.0.113.66:50000",
+  "severity": "high",
+  "reasons": ["THREAT-INTEL: source IP flagged by feodo-c2 (Emotet)", "..."],
+  "threat_intel": { "ti_source": ["feodo-c2"], "ti_malware": ["Emotet"], "ti_confidence": 100 }
+}
+```
+
+### Edge / air-gap deployment
+
+The feed layer ([`modpot/datafeeds.py`](modpot/datafeeds.py), stdlib-only) fetches
+once over HTTPS, caches to disk (`COGNIS_FEEDS_CACHE`, default `~/.cache/cognis-feeds`),
+and **re-serves from cache with `--offline`** — so enrichment keeps working on a
+disconnected OT / ICS network. To move intel across an air gap (sneakernet):
+
+```bash
+# on a connected box
+modpot feeds update
+python -m modpot.datafeeds snapshot-export feeds.tar.gz
+
+# carry feeds.tar.gz to the air-gapped enclave, then
+python -m modpot.datafeeds snapshot-import feeds.tar.gz
+modpot analyze capture.hexlog --enrich --offline      # never touches the network
+```
+
+The committed tests run fully offline against a trimmed fixture cache
+(`tests/fixtures/feeds_cache`); see [demo 06](demos/06-threat-intel-enrichment/SCENARIO.md).
+
 ## Contents
 
 - [Why modpot?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
