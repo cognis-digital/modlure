@@ -1,4 +1,5 @@
 """Smoke tests for MODPOT. No network access."""
+import json
 import os
 import struct
 
@@ -125,3 +126,82 @@ def test_cli_table_format(capsys):
     out = capsys.readouterr().out
     assert "SEV" in out and "FUNCTION" in out
     assert "total=6" in out
+
+
+def test_cli_format_flag_after_subcommand(capsys):
+    # --format must work in the natural position (after the subcommand),
+    # not only as a global flag before it.
+    rc = main(["analyze", DEMO, "--format", "json"])
+    assert rc == 1
+    out = capsys.readouterr().out
+    assert "\"severity\": \"high\"" in out
+
+
+def test_cli_sarif_format(capsys):
+    rc = main(["analyze", DEMO, "--format", "sarif"])
+    assert rc == 1
+    out = capsys.readouterr().out
+    doc = json.loads(out)
+    assert doc["version"] == "2.1.0"
+    run = doc["runs"][0]
+    assert run["tool"]["driver"]["name"] == core.TOOL_NAME
+    # high-severity events map to SARIF level "error"
+    assert any(r["level"] == "error" for r in run["results"])
+    # every result references a rule that exists in the driver
+    rule_ids = {r["id"] for r in run["tool"]["driver"]["rules"]}
+    assert all(r["ruleId"] in rule_ids for r in run["results"])
+
+
+def test_to_sarif_level_mapping():
+    events = [
+        {"severity": "high", "function_name": "write_single_coil", "reasons": ["w"]},
+        {"severity": "medium", "function_name": "unknown_0x63", "reasons": ["u"]},
+        {"severity": "low", "function_name": "read_coils", "reasons": ["r"]},
+        {"severity": "info", "function_name": "x", "reasons": ["i"]},
+    ]
+    doc = core.to_sarif(events)
+    levels = [r["level"] for r in doc["runs"][0]["results"]]
+    assert levels == ["error", "warning", "note", "none"]
+
+
+_DEMOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "demos")
+_DEMO_NAMES = sorted(
+    d for d in os.listdir(_DEMOS_DIR)
+    if os.path.isfile(os.path.join(_DEMOS_DIR, d, "capture.hexlog"))
+)
+
+
+@pytest.mark.parametrize("name", _DEMO_NAMES)
+def test_every_demo_capture_analyzes(name):
+    path = os.path.join(_DEMOS_DIR, name, "capture.hexlog")
+    with open(path, "r", encoding="utf-8") as fh:
+        events = core.analyze_capture(fh.read().splitlines())
+    # every demo must yield at least one classified event...
+    assert events, f"{name} produced no events"
+    # ...and every event must carry a severity the CLI understands.
+    for e in events:
+        assert e["severity"] in ("info", "low", "medium", "high")
+    # SARIF rendering must not raise on any demo's events.
+    core.to_sarif(events)
+
+
+def test_demo_high_severity_expectations():
+    # Demos that depict an attack must surface at least one high event;
+    # the clean / reads-only baselines must not.
+    def sevs(name):
+        path = os.path.join(_DEMOS_DIR, name, "capture.hexlog")
+        with open(path, "r", encoding="utf-8") as fh:
+            return [e["severity"] for e in core.analyze_capture(fh.read().splitlines())]
+
+    for attack in (
+        "04-water-treatment-tamper",
+        "05-port-scan-recon",
+        "06-plc-restart-diagnostics",
+        "07-fuzzing-campaign",
+        "09-setpoint-override",
+        "11-coil-flood",
+    ):
+        assert "high" in sevs(attack), f"{attack} should have a high event"
+
+    for clean in ("02-clean", "08-benign-scada-poll", "10-multi-unit-sweep"):
+        assert "high" not in sevs(clean), f"{clean} should have no high event"

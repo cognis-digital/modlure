@@ -17,7 +17,7 @@
 
 ```bash
 pip install cognis-modpot
-modpot scan .            # → prioritized findings in seconds
+modpot analyze capture.hexlog        # → classified Modbus threat events
 ```
 
 ## Usage — step by step
@@ -49,7 +49,7 @@ modpot scan .            # → prioritized findings in seconds
 
 ## Contents
 
-- [Why modpot?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
+- [Why modpot?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
 
 <a name="why"></a>
 ## Why modpot?
@@ -80,9 +80,10 @@ OT threat-intel content engine — drop it on a VPS, share the 'someone tried to
 ```bash
 pip install cognis-modpot
 modpot --version
-modpot scan .                       # scan current project
-modpot scan . --format json         # machine-readable
-modpot scan . --fail-on high        # CI gate (non-zero exit)
+modpot analyze capture.hexlog                       # decode + classify a capture
+modpot --format json analyze capture.hexlog         # machine-readable (SIEM)
+modpot --format sarif analyze capture.hexlog        # SARIF for code-scanning
+modpot analyze capture.hexlog --min-severity high   # CI gate (non-zero exit)
 ```
 
 <div align="right"><a href="#top">↑ back to top</a></div>
@@ -91,11 +92,50 @@ modpot scan . --fail-on high        # CI gate (non-zero exit)
 ## Example
 
 ```text
-$ modpot scan .
-  [HIGH    ] MOD-001  example finding             (./src/app.py)
-  [MEDIUM  ] MOD-002  another signal              (./config.yaml)
+$ modpot analyze demos/04-water-treatment-tamper/capture.hexlog
+SEV     SRC              FUNCTION                     ADDR   QTY  REASONS
+-------------------------------------------------------------------------
+low     10.0.4.10        read_holding_registers        100     4  benign register read
+high    185.220.101.7    report_server_id                         suspicious function report_server_id (recon/tamper); undecodable PDU (malformed/fuzz traffic)
+high    185.220.101.7    write_single_coil              16        register/coil write attempt against control device
+high    185.220.101.7    write_single_register         101        register/coil write attempt against control device
+high    185.220.101.7    write_multiple_coils           16     5  register/coil write attempt against control device
+-------------------------------------------------------------------------
+total=5  high=4, low=1
+```
 
-  2 findings · risk score 5 · 38ms
+`--format` is accepted **before or after** the subcommand, and supports
+`table` (default), `json`, and `sarif`.
+
+
+<div align="right"><a href="#top">↑ back to top</a></div>
+
+<a name="demos"></a>
+## Demos
+
+Every demo under [`demos/`](demos/) is a real Modbus TCP capture in the
+tool's actual input format (`<src> | <hex>` per line) plus a `SCENARIO.md`
+explaining where the traffic came from, the exact run command, what to
+expect, and how to act. Each one is verified by the test suite to produce
+the finding it describes.
+
+| Demo | Scenario | Outcome |
+|---|---|---|
+| [`01-basic`](demos/01-basic/) | Small mixed capture (reads, writes, recon, malformed) | high + medium + low |
+| [`02-clean`](demos/02-clean/) | Trusted HMI reads only — negative control | exit 0 |
+| [`03-mixed`](demos/03-mixed/) | Mostly benign polling with one hostile source | high |
+| [`04-water-treatment-tamper`](demos/04-water-treatment-tamper/) | Chlorine-dosing valve/setpoint writes | 4× high |
+| [`05-port-scan-recon`](demos/05-port-scan-recon/) | Internet-wide scanner fingerprinting `:502` | 3× high (recon) |
+| [`06-plc-restart-diagnostics`](demos/06-plc-restart-diagnostics/) | Restart / clear-counters / listen-only via FC 0x08 | 3× high |
+| [`07-fuzzing-campaign`](demos/07-fuzzing-campaign/) | Malformed/truncated frames — all recorded | high + medium |
+| [`08-benign-scada-poll`](demos/08-benign-scada-poll/) | Normal cyclic SCADA polling | exit 0 |
+| [`09-setpoint-override`](demos/09-setpoint-override/) | Turbine overspeed-trip setpoint tamper (mask-write) | 3× high |
+| [`10-multi-unit-sweep`](demos/10-multi-unit-sweep/) | One peer walking unit ids behind a gateway | reads-only, exit 0 |
+| [`11-coil-flood`](demos/11-coil-flood/) | Mass coil writes flipping actuators | 3× high |
+
+```bash
+python -m modpot analyze demos/09-setpoint-override/capture.hexlog
+python -m modpot --format sarif analyze demos/05-port-scan-recon/capture.hexlog > recon.sarif
 ```
 
 <div align="right"><a href="#top">↑ back to top</a></div>

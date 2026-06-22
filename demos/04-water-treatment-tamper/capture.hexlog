@@ -1,0 +1,8 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Hostile peer opens chlorine dosing valves on a water plant PLC.
+10.0.4.10 | 000100000006010300640004
+185.220.101.7 | 0002000000020111
+185.220.101.7 | 00030000000601050010ff00
+185.220.101.7 | 0004000000060106006503e8
+185.220.101.7 | 000500000008010f001000050117

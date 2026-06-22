@@ -1,0 +1,7 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Attacker tries to clear counters and restart comms on a PLC.
+45.83.193.150 | 000100000006010800010000
+45.83.193.150 | 0002000000060108000a0000
+45.83.193.150 | 000300000006010800040000
+10.0.4.10 | 000400000006010400000002

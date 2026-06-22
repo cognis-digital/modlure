@@ -264,6 +264,79 @@ def frame_to_event(
     }
 
 
+# Map modpot severities to SARIF result levels (SARIF 2.1.0 only defines
+# error / warning / note / none).
+_SARIF_LEVEL = {
+    "high": "error",
+    "medium": "warning",
+    "low": "note",
+    "info": "none",
+}
+
+
+def to_sarif(events: list[dict]) -> dict:
+    """Render a list of threat events as a SARIF 2.1.0 log.
+
+    This lets ``modpot`` output feed GitHub code-scanning, Azure DevOps,
+    and any other SARIF-aware pipeline. Each event becomes a ``result``;
+    each distinct function name becomes a reusable ``rule``.
+    """
+    rules: dict[str, dict] = {}
+    results: list[dict] = []
+    for e in events:
+        rule_id = e.get("function_name") or "unparsed_frame"
+        if rule_id not in rules:
+            rules[rule_id] = {
+                "id": rule_id,
+                "name": rule_id,
+                "shortDescription": {"text": f"Modbus {rule_id}"},
+                "defaultConfiguration": {
+                    "level": _SARIF_LEVEL.get(e.get("severity", "info"), "none")
+                },
+            }
+        msg = "; ".join(e.get("reasons") or []) or rule_id
+        result = {
+            "ruleId": rule_id,
+            "level": _SARIF_LEVEL.get(e.get("severity", "info"), "none"),
+            "message": {"text": msg},
+            "properties": {
+                "category": e.get("category"),
+                "severity": e.get("severity"),
+                "unit_id": e.get("unit_id"),
+                "function_code": e.get("function_code"),
+                "address": e.get("address"),
+                "quantity": e.get("quantity"),
+                "src": e.get("src"),
+            },
+        }
+        loc_uri = e.get("src") or "modbus://capture"
+        result["locations"] = [
+            {
+                "physicalLocation": {
+                    "artifactLocation": {"uri": loc_uri}
+                }
+            }
+        ]
+        results.append(result)
+    return {
+        "version": "2.1.0",
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": TOOL_NAME,
+                        "version": TOOL_VERSION,
+                        "informationUri": "https://github.com/cognis-digital/modpot",
+                        "rules": list(rules.values()),
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }
+
+
 def _clean_hex(text: str) -> str:
     out = []
     for ch in text:

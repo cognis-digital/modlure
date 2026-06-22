@@ -1,0 +1,8 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Internet-wide scanner fingerprinting an exposed :502 service.
+198.51.100.23 | 0001000000020111
+198.51.100.23 | 000200000005012b0e0100
+198.51.100.23 | 00030000000601080000a537
+198.51.100.23 | 000400000006010300000001
+198.51.100.23 | 00050000000401630000

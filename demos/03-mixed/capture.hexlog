@@ -1,0 +1,8 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>
+# Mixed real-world traffic: mostly benign, one hostile write, one recon.
+10.0.4.10 | 00010000000601030000000a
+10.0.4.10 | 000200000006010400400006
+45.13.9.21 | 0003000000020111
+45.13.9.21 | 0004000000060106000100ff
+10.0.4.11 | 0005000000060103000000c8

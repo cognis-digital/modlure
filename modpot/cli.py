@@ -44,6 +44,7 @@ from .core import (
     build_response,
     frame_to_event,
     parse_frame,
+    to_sarif,
     ParseError,
 )
 
@@ -84,6 +85,8 @@ def _print_table(events: list[dict]) -> None:
 def _emit(events: list[dict], fmt: str) -> None:
     if fmt == "json":
         print(json.dumps(events, indent=2))
+    elif fmt == "sarif":
+        print(json.dumps(to_sarif(events), indent=2))
     else:
         _print_table(events)
 
@@ -102,7 +105,9 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     if args.min_severity:
         floor = _SEV_RANK.get(args.min_severity, 0)
         events = [e for e in events if _SEV_RANK.get(e["severity"], 0) >= floor]
-    _emit(events, args.format)
+    # A --format given after the subcommand wins over the global one.
+    fmt = getattr(args, "format_sub", None) or args.format
+    _emit(events, fmt)
     return 1 if _has_high(events) else 0
 
 
@@ -183,9 +188,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--format",
-        choices=["table", "json"],
+        choices=["table", "json", "sarif"],
         default="table",
-        help="output format (default: table)",
+        help="output format (default: table). Accepted before OR after the "
+        "subcommand.",
     )
     sub = p.add_subparsers(dest="command")
 
@@ -194,6 +200,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="decode + classify Modbus frames from a hex capture log",
         description="Decode and classify Modbus TCP frames from a hex "
         "capture log into JSON threat events.",
+    )
+    # Allow --format after the subcommand too (natural position), e.g.
+    #   modpot analyze capture.hexlog --format json
+    a.add_argument(
+        "--format",
+        choices=["table", "json", "sarif"],
+        default=None,
+        dest="format_sub",
+        help="output format (default: table)",
     )
     a.add_argument(
         "path",

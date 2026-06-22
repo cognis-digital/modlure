@@ -1,0 +1,7 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Mass coil writes flipping breakers/actuators across a panel.
+10.0.4.10 | 000100000006010100000020
+77.91.78.55 | 00020000000b010f0000002004ffffffff
+77.91.78.55 | 00030000000601050040ff00
+77.91.78.55 | 000400000009010f00200010020000

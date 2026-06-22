@@ -1,0 +1,8 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Protocol fuzzer throwing malformed frames at the honeypot.
+203.0.113.66 | 0001dead0006010300000001
+203.0.113.66 | 00020000000201
+203.0.113.66 | 00030000ffff017d
+203.0.113.66 | 0004000000060110001000
+203.0.113.66 | 00050000000201fe

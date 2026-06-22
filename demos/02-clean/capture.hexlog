@@ -1,0 +1,6 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>
+# Clean baseline: trusted HMI reads only, zero high findings.
+10.0.4.10 | 000100000006010300000008
+10.0.4.10 | 000200000006010400640004
+10.0.4.11 | 000300000006010100000008

@@ -1,0 +1,8 @@
+# MODPOT demo capture - one Modbus TCP frame per line.
+# Format:  <src> | <hex bytes>   (comments start with #)
+# Normal HMI/SCADA cyclic polling - nothing hostile.
+10.0.4.10 | 00010000000601030000000a
+10.0.4.10 | 000200000006010400640008
+10.0.4.11 | 000300000006010100000010
+10.0.4.11 | 000400000006010200000010
+10.0.4.10 | 0005000000060103000a0004
