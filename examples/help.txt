@@ -1,0 +1,52 @@
+$ modpot-emit --help
+
+usage: modpot [-h] [--version] [--format {table,json,sarif}]
+              {analyze,serve,probe,feeds} ...
+
+MODPOT - a standard-library Modbus TCP honeypot that logs attacker register reads/writes as JSON.
+
+positional arguments:
+  {analyze,serve,probe,feeds}
+    analyze             decode + classify Modbus frames from a hex capture log
+    serve               run a live Modbus TCP honeypot listener
+    probe               ACTIVE: read-only probe of an AUTHORIZED, in-scope
+                        device (OFF by default; requires --authorized + a
+                        target scope)
+    feeds               manage the bundled threat-intel feeds (feodo-c2,
+                        threatfox)
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --format {table,json,sarif}
+                        output format (default: table). Accepted before OR
+                        after the subcommand.
+
+Command-line interface for MODPOT.
+
+Subcommands
+-----------
+  analyze   Decode + classify Modbus TCP frames from a hex capture log
+            and emit threat events (table or JSON).
+  serve     Run a live Modbus TCP honeypot listener that logs every
+            request as a JSON threat event.
+
+Examples
+--------
+  # Analyze a captured hex log and pretty-print a table
+  modpot analyze demos/01-basic/capture.hexlog
+
+  # Emit JSON for piping into a SIEM / CI gate
+  modpot analyze demos/01-basic/capture.hexlog --format json
+
+  # Read frames from stdin
+  cat capture.hexlog | modpot analyze -
+
+  # Run a real honeypot on port 5020 (no root needed)
+  modpot serve --host 0.0.0.0 --port 5020
+
+Exit codes
+----------
+  0  no high-severity findings
+  1  at least one high-severity event (write/control/recon) -- use as a
+     

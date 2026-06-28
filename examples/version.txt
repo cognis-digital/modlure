@@ -1,0 +1,3 @@
+$ modpot-emit --version
+
+modpot 1.0.0

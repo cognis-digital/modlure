@@ -20,6 +20,104 @@ pip install cognis-modpot
 modpot analyze capture.hexlog        # → classified Modbus threat events
 ```
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ modpot-emit --version
+modpot 1.0.0
+```
+
+```console
+$ modpot-emit --help
+usage: modpot [-h] [--version] [--format {table,json,sarif}]
+              {analyze,serve,probe,feeds} ...
+
+MODPOT - a standard-library Modbus TCP honeypot that logs attacker register reads/writes as JSON.
+
+positional arguments:
+  {analyze,serve,probe,feeds}
+    analyze             decode + classify Modbus frames from a hex capture log
+    serve               run a live Modbus TCP honeypot listener
+    probe               ACTIVE: read-only probe of an AUTHORIZED, in-scope
+                        device (OFF by default; requires --authorized + a
+                        target scope)
+    feeds               manage the bundled threat-intel feeds (feodo-c2,
+                        threatfox)
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --format {table,json,sarif}
+                        output format (default: table). Accepted before OR
+                        after the subcommand.
+
+Command-line interface for MODPOT.
+
+Subcommands
+-----------
+  analyze   Decode + classify Modbus TCP frames from a hex capture log
+            and emit threat events (table or JSON).
+  serve     Run a live Modbus TCP honeypot listener that logs every
+            request as a JSON threat event.
+
+Examples
+--------
+  # Analyze a captured hex log and pretty-print a table
+  modpot analyze demos/01-basic/capture.hexlog
+
+  # Emit JSON for piping into a SIEM / CI gate
+  modpot analyze demos/01-basic/capture.hexlog --format json
+
+  # Read frames from stdin
+  cat capture.hexlog | modpot analyze -
+
+  # Run a real honeypot on port 5020 (no root needed)
+  modpot serve --host 0.0.0.0 --port 5020
+
+Exit codes
+----------
+  0  no high-severity findings
+  1  at least one high-severity event (write/control/recon) -- use as a
+     
+```
+
+> Blocks above are real `modpot` output — reproduce them from a clone.
+
+**Sample result format** _(illustrative values — run on your own data for real findings):_
+
+```
+{
+    "title": "Example Finding",
+    "id": "1234567890",
+    "created_by": "John Doe",
+    "created_at": 1643723400,
+    "modified_at": 1643723400,
+    "labels": ["Vulnerability", "Exploit"],
+    "observables": [
+        {
+            "type": "IPv4-Address",
+            "value": "192.168.1.100"
+        },
+        {
+            "type": "Domain-Name",
+            "value": "example.com"
+        }
+    ],
+    "indicators": [
+        {
+            "type": "Hash-MD5",
+            "value": "1234567890abcdef"
+        }
+    ]
+}
+```
+
+<!-- cognis:example:end -->
+
 ## Usage — step by step
 
 `modpot` is a standard-library Modbus TCP honeypot that decodes and classifies attacker register reads/writes as JSON threat events. Console script: `modpot`.
