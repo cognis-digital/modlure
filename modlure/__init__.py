@@ -1,11 +1,11 @@
-"""modpot — part of the Cognis Neural Suite."""
+"""modlure — part of the Cognis Neural Suite."""
 try:  # re-export the tool's public API + identity from core
-    from modpot.core import *  # noqa: F401,F403
+    from modlure.core import *  # noqa: F401,F403
 except Exception:  # pragma: no cover
     pass
 try:
-    from modpot.core import TOOL_NAME, TOOL_VERSION
+    from modlure.core import TOOL_NAME, TOOL_VERSION
 except Exception:  # pragma: no cover
-    TOOL_NAME = "modpot"
+    TOOL_NAME = "modlure"
     TOOL_VERSION = "0.1.0"
 __version__ = TOOL_VERSION

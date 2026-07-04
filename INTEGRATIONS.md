@@ -1,6 +1,6 @@
 # Integrations
 
-**modpot** plugs into your stack through [`cognis-connect`](https://github.com/cognis-digital/cognis-connect),
+**modlure** plugs into your stack through [`cognis-connect`](https://github.com/cognis-digital/cognis-connect),
 the suite's integration SDK. It maps any tool's JSON into a canonical **Finding** and
 forwards it to the platforms that fit the **Threat intel / detections** domain.
 
@@ -10,14 +10,14 @@ pip install "git+https://github.com/cognis-digital/cognis-connect.git"
 
 ## Forward findings to a platform
 
-Once `modpot` emits JSON findings, pipe them straight to a destination — `--dry-run`
+Once `modlure` emits JSON findings, pipe them straight to a destination — `--dry-run`
 previews the exact request without sending:
 
 ```bash
-modpot ... --format json | cognis-connect emit --to stix   # STIX 2.1 bundle
-modpot ... --format json | cognis-connect emit --to misp --url $URL --token $TOK   # MISP event
-modpot ... --format json | cognis-connect emit --to sigma   # Sigma rules
-modpot ... --format json | cognis-connect emit --to splunk --url $URL --token $TOK   # Splunk HEC
+modlure ... --format json | cognis-connect emit --to stix   # STIX 2.1 bundle
+modlure ... --format json | cognis-connect emit --to misp --url $URL --token $TOK   # MISP event
+modlure ... --format json | cognis-connect emit --to sigma   # Sigma rules
+modlure ... --format json | cognis-connect emit --to splunk --url $URL --token $TOK   # Splunk HEC
 ```
 
 Recommended for this domain: **stix, misp, sigma, splunk**. The full set is
@@ -26,11 +26,11 @@ Recommended for this domain: **stix, misp, sigma, splunk**. The full set is
 ## From Python
 
 `normalize()` maps any record (field/indicator aliases handled) into a `Finding`, so this
-works whatever `modpot` outputs:
+works whatever `modlure` outputs:
 
 ```python
 from cognis_connect import normalize, stix
-findings = [normalize(rec, source="modpot") for rec in records]   # records = your JSON output
+findings = [normalize(rec, source="modlure") for rec in records]   # records = your JSON output
 print(stix.to_bundle(findings))
 ```
 

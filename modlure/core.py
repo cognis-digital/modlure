@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Iterable, Iterator
 
-TOOL_NAME = "modpot"
+TOOL_NAME = "modlure"
 TOOL_VERSION = "1.0.0"
 
 # Modbus function codes we understand.
@@ -264,7 +264,7 @@ def frame_to_event(
     }
 
 
-# Map modpot severities to SARIF result levels (SARIF 2.1.0 only defines
+# Map modlure severities to SARIF result levels (SARIF 2.1.0 only defines
 # error / warning / note / none).
 _SARIF_LEVEL = {
     "high": "error",
@@ -277,7 +277,7 @@ _SARIF_LEVEL = {
 def to_sarif(events: list[dict]) -> dict:
     """Render a list of threat events as a SARIF 2.1.0 log.
 
-    This lets ``modpot`` output feed GitHub code-scanning, Azure DevOps,
+    This lets ``modlure`` output feed GitHub code-scanning, Azure DevOps,
     and any other SARIF-aware pipeline. Each event becomes a ``result``;
     each distinct function name becomes a reusable ``rule``.
     """
@@ -327,7 +327,7 @@ def to_sarif(events: list[dict]) -> dict:
                     "driver": {
                         "name": TOOL_NAME,
                         "version": TOOL_VERSION,
-                        "informationUri": "https://github.com/cognis-digital/modpot",
+                        "informationUri": "https://github.com/cognis-digital/modlure",
                         "rules": list(rules.values()),
                     }
                 },

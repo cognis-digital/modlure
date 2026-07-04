@@ -11,7 +11,7 @@ it as the negative control for your alerting rules and CI gate.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/02-clean/capture.hexlog
+python -m modlure analyze demos/02-clean/capture.hexlog
 echo "exit=$?"   # expect 0
 ```
 

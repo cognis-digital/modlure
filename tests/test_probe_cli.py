@@ -1,11 +1,11 @@
-"""CLI-level tests for `modpot probe` (active, gated) and `analyze --summary`.
+"""CLI-level tests for `modlure probe` (active, gated) and `analyze --summary`.
 
 Active-mode CLI tests run only against a localhost fixture or assert refusal
 paths that never open a socket.
 """
 import json
 
-from modpot.cli import main
+from modlure.cli import main
 from .modbus_fixture import LocalModbusServer
 
 

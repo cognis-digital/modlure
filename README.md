@@ -1,23 +1,23 @@
 <a name="top"></a>
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0:6b46c1,100:2b6cb0&height=120&section=header&text=MODPOT&fontSize=48&fontColor=ffffff&fontAlignY=58" width="100%" alt="MODPOT"/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:6b46c1,100:2b6cb0&height=120&section=header&text=MODLURE&fontSize=48&fontColor=ffffff&fontAlignY=58" width="100%" alt="MODLURE"/>
 
-# MODPOT
+# MODLURE
 
 ### Spin up a high-interaction Modbus/DNP3 ICS honeypot that logs attacker register reads/writes as structured JSON.
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=18&duration=3500&pause=1000&color=6B46C1&center=true&vCenter=true&width=720&lines=Spin+up+a+highinteraction+ModbusDNP3+ICS+honeypot+that+logs+;Self-hostable+%C2%B7+MCP-native+%C2%B7+CI-ready+%C2%B7+polyglot" width="720"/>
 
-[![PyPI](https://img.shields.io/pypi/v/cognis-modpot.svg?color=6b46c1)](https://pypi.org/project/cognis-modpot/) [![CI](https://github.com/cognis-digital/modpot/actions/workflows/ci.yml/badge.svg)](https://github.com/cognis-digital/modpot/actions) [![License: COCL 1.0](https://img.shields.io/badge/License-COCL%201.0-2b6cb0.svg)](LICENSE) [![Suite](https://img.shields.io/badge/Cognis-Neural%20Suite-6b46c1.svg)](https://github.com/cognis-digital)
+[![PyPI](https://img.shields.io/pypi/v/modlure.svg?color=6b46c1)](https://pypi.org/project/modlure/) [![CI](https://github.com/cognis-digital/modlure/actions/workflows/ci.yml/badge.svg)](https://github.com/cognis-digital/modlure/actions) [![License: COCL 1.0](https://img.shields.io/badge/License-COCL%201.0-2b6cb0.svg)](LICENSE) [![Suite](https://img.shields.io/badge/Cognis-Neural%20Suite-6b46c1.svg)](https://github.com/cognis-digital)
 
 *IoT / OT / Embedded — firmware, buses, and device security.*
 
 </div>
 
 ```bash
-pip install cognis-modpot
-modpot analyze capture.hexlog        # → classified Modbus threat events
+pip install modlure
+modlure analyze capture.hexlog        # → classified Modbus threat events
 ```
 
 
@@ -27,16 +27,16 @@ modpot analyze capture.hexlog        # → classified Modbus threat events
 Real, reproducible output from the tool — runs offline:
 
 ```console
-$ modpot-emit --version
-modpot 1.0.0
+$ modlure-emit --version
+modlure 1.0.0
 ```
 
 ```console
-$ modpot-emit --help
-usage: modpot [-h] [--version] [--format {table,json,sarif}]
+$ modlure-emit --help
+usage: modlure [-h] [--version] [--format {table,json,sarif}]
               {analyze,serve,probe,feeds} ...
 
-MODPOT - a standard-library Modbus TCP honeypot that logs attacker register reads/writes as JSON.
+MODLURE - a standard-library Modbus TCP honeypot that logs attacker register reads/writes as JSON.
 
 positional arguments:
   {analyze,serve,probe,feeds}
@@ -55,7 +55,7 @@ options:
                         output format (default: table). Accepted before OR
                         after the subcommand.
 
-Command-line interface for MODPOT.
+Command-line interface for MODLURE.
 
 Subcommands
 -----------
@@ -67,16 +67,16 @@ Subcommands
 Examples
 --------
   # Analyze a captured hex log and pretty-print a table
-  modpot analyze demos/01-basic/capture.hexlog
+  modlure analyze demos/01-basic/capture.hexlog
 
   # Emit JSON for piping into a SIEM / CI gate
-  modpot analyze demos/01-basic/capture.hexlog --format json
+  modlure analyze demos/01-basic/capture.hexlog --format json
 
   # Read frames from stdin
-  cat capture.hexlog | modpot analyze -
+  cat capture.hexlog | modlure analyze -
 
   # Run a real honeypot on port 5020 (no root needed)
-  modpot serve --host 0.0.0.0 --port 5020
+  modlure serve --host 0.0.0.0 --port 5020
 
 Exit codes
 ----------
@@ -85,7 +85,7 @@ Exit codes
      
 ```
 
-> Blocks above are real `modpot` output — reproduce them from a clone.
+> Blocks above are real `modlure` output — reproduce them from a clone.
 
 **Sample result format** _(illustrative values — run on your own data for real findings):_
 
@@ -120,34 +120,34 @@ Exit codes
 
 ## Usage — step by step
 
-`modpot` is a standard-library Modbus TCP honeypot that decodes and classifies attacker register reads/writes as JSON threat events. Console script: `modpot`.
+`modlure` is a standard-library Modbus TCP honeypot that decodes and classifies attacker register reads/writes as JSON threat events. Console script: `modlure`.
 
 1. **Install**:
    ```bash
-   pipx install modpot     # or: pip install modpot
+   pipx install modlure     # or: pip install modlure
    ```
 2. **Analyze a captured hex log** of Modbus frames and print a classified threat table (the `--format` flag is global, before the subcommand):
    ```bash
-   modpot analyze capture.hexlog
-   cat capture.hexlog | modpot analyze -        # read frames from stdin
+   modlure analyze capture.hexlog
+   cat capture.hexlog | modlure analyze -        # read frames from stdin
    ```
    Exit `1` = at least one high-severity event (write/control/recon), `0` = none.
 3. **Filter to serious events** and emit JSON for a SIEM:
    ```bash
-   modpot --format json analyze capture.hexlog --min-severity high | jq '.[].reasons'
+   modlure --format json analyze capture.hexlog --min-severity high | jq '.[].reasons'
    ```
 4. **Run a live honeypot listener** (no root needed on a high port); every request is logged as a JSON event on stdout:
    ```bash
-   modpot serve --host 0.0.0.0 --port 5020
+   modlure serve --host 0.0.0.0 --port 5020
    ```
 5. **Use it as a CI / alerting gate** over a capture — fail when control-plane writes appear:
    ```bash
-   modpot analyze capture.hexlog --min-severity high || echo "high-severity Modbus activity — alerting"
+   modlure analyze capture.hexlog --min-severity high || echo "high-severity Modbus activity — alerting"
    ```
 
 ## Threat-intel enrichment (real C2/IOC feeds, edge / air-gap)
 
-MODPOT can score every attacker source IP against two authoritative, **keyless**
+MODLURE can score every attacker source IP against two authoritative, **keyless**
 [abuse.ch](https://abuse.ch) feeds and escalate any match to **high** severity:
 
 | Feed id      | Source                                   | URL |
@@ -156,12 +156,12 @@ MODPOT can score every attacker source IP against two authoritative, **keyless**
 | `threatfox`  | abuse.ch **ThreatFox** recent IOCs (`ip:port` IOCs are extracted, with malware family + confidence) | https://threatfox.abuse.ch/export/json/recent/ |
 
 ```bash
-modpot feeds list                          # show consumed feeds + cache freshness
-modpot feeds update                         # fetch + cache feodo-c2 and threatfox
-modpot feeds get feodo-c2 --offline         # print the cached feed (no network)
+modlure feeds list                          # show consumed feeds + cache freshness
+modlure feeds update                         # fetch + cache feodo-c2 and threatfox
+modlure feeds get feodo-c2 --offline         # print the cached feed (no network)
 
 # enrich a capture: a known-C2 source IP becomes a high-severity event
-modpot analyze capture.hexlog --enrich --format json
+modlure analyze capture.hexlog --enrich --format json
 ```
 
 A match adds a `threat_intel` block to the event and forces `severity: high` —
@@ -178,19 +178,19 @@ a host that is a known botnet C2 touching an ICS device is critical by definitio
 
 ### Edge / air-gap deployment
 
-The feed layer ([`modpot/datafeeds.py`](modpot/datafeeds.py), stdlib-only) fetches
+The feed layer ([`modlure/datafeeds.py`](modlure/datafeeds.py), stdlib-only) fetches
 once over HTTPS, caches to disk (`COGNIS_FEEDS_CACHE`, default `~/.cache/cognis-feeds`),
 and **re-serves from cache with `--offline`** — so enrichment keeps working on a
 disconnected OT / ICS network. To move intel across an air gap (sneakernet):
 
 ```bash
 # on a connected box
-modpot feeds update
-python -m modpot.datafeeds snapshot-export feeds.tar.gz
+modlure feeds update
+python -m modlure.datafeeds snapshot-export feeds.tar.gz
 
 # carry feeds.tar.gz to the air-gapped enclave, then
-python -m modpot.datafeeds snapshot-import feeds.tar.gz
-modpot analyze capture.hexlog --enrich --offline      # never touches the network
+python -m modlure.datafeeds snapshot-import feeds.tar.gz
+modlure analyze capture.hexlog --enrich --offline      # never touches the network
 ```
 
 The committed tests run fully offline against a trimmed fixture cache
@@ -198,7 +198,7 @@ The committed tests run fully offline against a trimmed fixture cache
 
 ## Passive (default) vs. Active (authorization-gated)
 
-`modpot` is a **defensive, authorized-use-only** tool. It has two clearly
+`modlure` is a **defensive, authorized-use-only** tool. It has two clearly
 separated modes.
 
 ### Passive mode — the safe default (no network)
@@ -207,15 +207,15 @@ Everything default is offline: it decodes captures and runs a honeypot you own.
 No outbound connections to third parties are ever made.
 
 ```bash
-modpot analyze capture.hexlog              # decode + classify a captured hex log
-modpot analyze capture.hexlog --summary    # aggregated scan summary (JSON):
+modlure analyze capture.hexlog              # decode + classify a captured hex log
+modlure analyze capture.hexlog --summary    # aggregated scan summary (JSON):
                                            #   counts by severity/category/function,
                                            #   distinct sources, recon-sweep heuristic
-modpot serve --host 0.0.0.0 --port 5020    # honeypot listener — YOU own the socket
-modpot analyze capture.hexlog --enrich --offline   # score source IPs vs cached C2/IOC feeds
+modlure serve --host 0.0.0.0 --port 5020    # honeypot listener — YOU own the socket
+modlure analyze capture.hexlog --enrich --offline   # score source IPs vs cached C2/IOC feeds
 ```
 
-### Active mode — `modpot probe` (OFF by default)
+### Active mode — `modlure probe` (OFF by default)
 
 > ⚠️ **AUTHORIZED USE ONLY.** Active mode opens **outbound** Modbus/TCP
 > connections to real devices. Scanning equipment you are not explicitly
@@ -238,16 +238,16 @@ identification). It is gated four ways:
 
 ```bash
 # Refused — active mode is off by default:
-modpot probe --target 10.0.0.5:502
+modlure probe --target 10.0.0.5:502
 #   error: active probing is OFF by default ...
 
 # Authorized probe of two in-scope devices, 1 request/sec, JSON out:
-modpot probe --authorized \
+modlure probe --authorized \
   --target 10.0.0.5:502 --target 10.0.0.6:502 \
   --rate 1.0 --format json
 
 # Scope from a file (one HOST[:PORT] per line, # comments allowed):
-modpot probe --authorized --scope-file authorized_devices.txt
+modlure probe --authorized --scope-file authorized_devices.txt
 ```
 
 The bundled tests for active mode hit **only a localhost fixture server**
@@ -255,14 +255,14 @@ The bundled tests for active mode hit **only a localhost fixture server**
 
 ## Contents
 
-- [Why modpot?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
+- [Why modlure?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
 
 <a name="why"></a>
-## Why modpot?
+## Why modlure?
 
 OT threat-intel content engine — drop it on a VPS, share the 'someone tried to open my fake water-treatment valve' logs. ICS honeypot captures get major infosec-Twitter traction.
 
-`modpot` is single-purpose, scriptable, and self-hostable: point it at a target, get prioritized results in the format your workflow already speaks (table · JSON · SARIF), gate CI on it, and let agents drive it over MCP.
+`modlure` is single-purpose, scriptable, and self-hostable: point it at a target, get prioritized results in the format your workflow already speaks (table · JSON · SARIF), gate CI on it, and let agents drive it over MCP.
 
 <div align="right"><a href="#top">↑ back to top</a></div>
 
@@ -283,12 +283,12 @@ OT threat-intel content engine — drop it on a VPS, share the 'someone tried to
 ## Quick start
 
 ```bash
-pip install cognis-modpot
-modpot --version
-modpot analyze capture.hexlog                       # decode + classify a capture
-modpot --format json analyze capture.hexlog         # machine-readable (SIEM)
-modpot --format sarif analyze capture.hexlog        # SARIF for code-scanning
-modpot analyze capture.hexlog --min-severity high   # CI gate (non-zero exit)
+pip install modlure
+modlure --version
+modlure analyze capture.hexlog                       # decode + classify a capture
+modlure --format json analyze capture.hexlog         # machine-readable (SIEM)
+modlure --format sarif analyze capture.hexlog        # SARIF for code-scanning
+modlure analyze capture.hexlog --min-severity high   # CI gate (non-zero exit)
 ```
 
 <div align="right"><a href="#top">↑ back to top</a></div>
@@ -297,7 +297,7 @@ modpot analyze capture.hexlog --min-severity high   # CI gate (non-zero exit)
 ## Example
 
 ```text
-$ modpot analyze demos/04-water-treatment-tamper/capture.hexlog
+$ modlure analyze demos/04-water-treatment-tamper/capture.hexlog
 SEV     SRC              FUNCTION                     ADDR   QTY  REASONS
 -------------------------------------------------------------------------
 low     10.0.4.10        read_holding_registers        100     4  benign register read
@@ -339,8 +339,8 @@ the finding it describes.
 | [`11-coil-flood`](demos/11-coil-flood/) | Mass coil writes flipping actuators | 3× high |
 
 ```bash
-python -m modpot analyze demos/09-setpoint-override/capture.hexlog
-python -m modpot --format sarif analyze demos/05-port-scan-recon/capture.hexlog > recon.sarif
+python -m modlure analyze demos/09-setpoint-override/capture.hexlog
+python -m modlure --format sarif analyze demos/05-port-scan-recon/capture.hexlog > recon.sarif
 ```
 
 <div align="right"><a href="#top">↑ back to top</a></div>
@@ -350,7 +350,7 @@ python -m modpot --format sarif analyze demos/05-port-scan-recon/capture.hexlog 
 
 ```mermaid
 flowchart LR
-  IN[attacker traffic] --> P[modpot<br/>capture]
+  IN[attacker traffic] --> P[modlure<br/>capture]
   P --> OUT[alerts + indicators]
 ```
 
@@ -359,10 +359,10 @@ flowchart LR
 <a name="ai-stack"></a>
 ## Use it from any AI stack
 
-`modpot` is interoperable with every popular way of using AI:
+`modlure` is interoperable with every popular way of using AI:
 
-- **MCP server** — `modpot mcp` (Claude Desktop, Cursor, Cognis.Studio, [uncensored-fleet](https://github.com/cognis-digital/uncensored-fleet))
-- **OpenAI-compatible / JSON** — pipe `modpot scan . --format json` into any agent or LLM
+- **MCP server** — `modlure mcp` (Claude Desktop, Cursor, Cognis.Studio, [uncensored-fleet](https://github.com/cognis-digital/uncensored-fleet))
+- **OpenAI-compatible / JSON** — pipe `modlure scan . --format json` into any agent or LLM
 - **LangChain · CrewAI · AutoGen · LlamaIndex** — wrap the CLI/JSON as a tool in one line
 - **CI / scripts** — exit codes + SARIF for non-AI pipelines
 
@@ -371,7 +371,7 @@ flowchart LR
 <a name="how-it-compares"></a>
 ## How it compares
 
-| | **Cognis modpot** | conpot |
+| | **Cognis modlure** | conpot |
 |---|:---:|:---:|
 | Self-hostable, no account | ✅ | varies |
 | Single command, zero config | ✅ | ⚠️ |
@@ -387,7 +387,7 @@ flowchart LR
 <a name="integrations"></a>
 ## Integrations
 
-Pipes into your stack: **SARIF** for code-scanning, **JSON** for anything, an **MCP server** (`modpot mcp`) for AI agents, and a webhook forwarder for SIEM/Slack/Jira. See [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md).
+Pipes into your stack: **SARIF** for code-scanning, **JSON** for anything, an **MCP server** (`modlure mcp`) for AI agents, and a webhook forwarder for SIEM/Slack/Jira. See [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md).
 
 <div align="right"><a href="#top">↑ back to top</a></div>
 
@@ -395,18 +395,18 @@ Pipes into your stack: **SARIF** for code-scanning, **JSON** for anything, an **
 ## Install — every way, every platform
 
 ```bash
-pip install "git+https://github.com/cognis-digital/modpot.git"    # pip (works today)
-pipx install "git+https://github.com/cognis-digital/modpot.git"   # isolated CLI
-uv tool install "git+https://github.com/cognis-digital/modpot.git" # uv
-pip install cognis-modpot                                          # PyPI (when published)
-docker run --rm ghcr.io/cognis-digital/modpot:latest --help        # Docker
-brew install cognis-digital/tap/modpot                             # Homebrew tap
-curl -fsSL https://raw.githubusercontent.com/cognis-digital/modpot/main/install.sh | sh
+pip install "git+https://github.com/cognis-digital/modlure.git"    # pip (works today)
+pipx install "git+https://github.com/cognis-digital/modlure.git"   # isolated CLI
+uv tool install "git+https://github.com/cognis-digital/modlure.git" # uv
+pip install modlure                                          # PyPI (when published)
+docker run --rm ghcr.io/cognis-digital/modlure:latest --help        # Docker
+brew install cognis-digital/tap/modlure                             # Homebrew tap
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/modlure/main/install.sh | sh
 ```
 
 | Linux | macOS | Windows | Docker | Cloud |
 |---|---|---|---|---|
-| `scripts/setup-linux.sh` | `scripts/setup-macos.sh` | `scripts/setup-windows.ps1` | `docker run ghcr.io/cognis-digital/modpot` | [DEPLOY.md](docs/DEPLOY.md) (AWS/Azure/GCP/k8s) |
+| `scripts/setup-linux.sh` | `scripts/setup-macos.sh` | `scripts/setup-windows.ps1` | `docker run ghcr.io/cognis-digital/modlure` | [DEPLOY.md](docs/DEPLOY.md) (AWS/Azure/GCP/k8s) |
 
 <div align="right"><a href="#top">↑ back to top</a></div>
 
@@ -429,7 +429,7 @@ curl -fsSL https://raw.githubusercontent.com/cognis-digital/modpot/main/install.
 
 PRs, new rules, and demo scenarios are welcome under the collaboration-pull model — see [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
-> ### ⭐ If `modpot` saved you time, **star it** — it genuinely helps others find it.
+> ### ⭐ If `modlure` saved you time, **star it** — it genuinely helps others find it.
 
 ## Interoperability
 

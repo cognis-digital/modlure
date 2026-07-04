@@ -20,7 +20,7 @@ listen-only mode. A legitimate input-register read follows from the HMI.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/06-plc-restart-diagnostics/capture.hexlog
+python -m modlure analyze demos/06-plc-restart-diagnostics/capture.hexlog
 ```
 
 ## Expected result

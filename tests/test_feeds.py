@@ -1,4 +1,4 @@
-"""Offline tests for MODPOT's threat-intel feed enrichment.
+"""Offline tests for MODLURE's threat-intel feed enrichment.
 
 These tests NEVER touch the network. They point ``COGNIS_FEEDS_CACHE`` at the
 trimmed fixture cache under ``tests/fixtures/feeds_cache`` and load every feed
@@ -28,7 +28,7 @@ def _offline_cache(monkeypatch):
 
 def _reload_datafeeds():
     # datafeeds reads the env at call time, so no reload needed; just import.
-    from modpot import datafeeds
+    from modlure import datafeeds
     return datafeeds
 
 
@@ -38,14 +38,14 @@ def test_fixture_cache_present():
 
 
 def test_load_feodo_offline_indexes_by_ip():
-    from modpot import feeds
+    from modlure import feeds
     idx = feeds.load_feodo_c2(offline=True)
     assert FEODO_IP in idx
     assert idx[FEODO_IP]["malware"] == "Emotet"
 
 
 def test_load_threatfox_offline_extracts_ip_iocs():
-    from modpot import feeds
+    from modlure import feeds
     idx = feeds.load_threatfox_ips(offline=True)
     assert THREATFOX_IP in idx
     assert idx[THREATFOX_IP]["malware_printable"] == "Cobalt Strike"
@@ -59,13 +59,13 @@ def test_offline_get_never_hits_network(monkeypatch):
         raise AssertionError("network fetch attempted during offline test")
 
     monkeypatch.setattr(df, "fetch", _boom)
-    from modpot import feeds
+    from modlure import feeds
     feeds.load_feodo_c2(offline=True)
     feeds.load_threatfox_ips(offline=True)
 
 
 def test_score_ip_feodo_hit():
-    from modpot import feeds
+    from modlure import feeds
     feodo = feeds.load_feodo_c2(offline=True)
     tf = feeds.load_threatfox_ips(offline=True)
     hit = feeds.score_ip(FEODO_IP, feodo, tf)
@@ -76,7 +76,7 @@ def test_score_ip_feodo_hit():
 
 
 def test_score_ip_threatfox_hit_with_port_suffix():
-    from modpot import feeds
+    from modlure import feeds
     feodo = feeds.load_feodo_c2(offline=True)
     tf = feeds.load_threatfox_ips(offline=True)
     # source comes in as ip:port from a honeypot connection
@@ -87,14 +87,14 @@ def test_score_ip_threatfox_hit_with_port_suffix():
 
 
 def test_score_ip_clean_returns_none():
-    from modpot import feeds
+    from modlure import feeds
     feodo = feeds.load_feodo_c2(offline=True)
     tf = feeds.load_threatfox_ips(offline=True)
     assert feeds.score_ip(CLEAN_IP, feodo, tf) is None
 
 
 def test_enrich_event_escalates_to_high():
-    from modpot import feeds
+    from modlure import feeds
     feodo = feeds.load_feodo_c2(offline=True)
     tf = feeds.load_threatfox_ips(offline=True)
     ev = {"src": f"{FEODO_IP}:40000", "severity": "low",
@@ -106,7 +106,7 @@ def test_enrich_event_escalates_to_high():
 
 
 def test_enrich_event_clean_unchanged():
-    from modpot import feeds
+    from modlure import feeds
     feodo = feeds.load_feodo_c2(offline=True)
     tf = feeds.load_threatfox_ips(offline=True)
     ev = {"src": f"{CLEAN_IP}:40000", "severity": "low",
@@ -117,7 +117,7 @@ def test_enrich_event_clean_unchanged():
 
 
 def test_enrich_events_batch_offline():
-    from modpot import feeds
+    from modlure import feeds
     events = [
         {"src": f"{FEODO_IP}:1", "severity": "low", "reasons": []},
         {"src": f"{THREATFOX_IP}:2", "severity": "low", "reasons": []},
@@ -130,7 +130,7 @@ def test_enrich_events_batch_offline():
 
 
 def test_feed_ids_restricted_to_catalog():
-    from modpot import feeds, datafeeds
+    from modlure import feeds, datafeeds
     catalog_ids = {f["id"] for f in datafeeds.load_catalog().get("feeds", [])}
     for fid in feeds.FEED_IDS:
         assert fid in catalog_ids, f"{fid} not in bundled catalog"

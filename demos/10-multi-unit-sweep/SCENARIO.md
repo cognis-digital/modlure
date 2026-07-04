@@ -17,14 +17,14 @@ one oversized read to bulk-grab a register range.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/10-multi-unit-sweep/capture.hexlog
+python -m modlure analyze demos/10-multi-unit-sweep/capture.hexlog
 echo "exit=$?"   # expect 0 - reads only, no control writes
 ```
 
 ## Expected result
 
 Seven events: six `low` plus one `medium` (the oversized read). Exit
-status **0**, because enumeration is reads-only and `modpot` reserves
+status **0**, because enumeration is reads-only and `modlure` reserves
 `high` for control/recon-function activity.
 
 ## How to act

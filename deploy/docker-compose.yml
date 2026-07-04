@@ -1,7 +1,7 @@
 services:
-  modpot:
+  modlure:
     build: .
-    image: cognis/modpot:local
+    image: cognis/modlure:local
     restart: unless-stopped
     ports: ["8000:8000"]
     environment:

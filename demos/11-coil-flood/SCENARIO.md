@@ -20,8 +20,8 @@ coil, then force another block OFF - a crude but destructive
 ## Run it
 
 ```bash
-python -m modpot analyze demos/11-coil-flood/capture.hexlog
-python -m modpot --format sarif analyze demos/11-coil-flood/capture.hexlog > coil-flood.sarif
+python -m modlure analyze demos/11-coil-flood/capture.hexlog
+python -m modlure --format sarif analyze demos/11-coil-flood/capture.hexlog > coil-flood.sarif
 ```
 
 ## Expected result

@@ -1,12 +1,12 @@
-"""Smoke tests for MODPOT. No network access."""
+"""Smoke tests for MODLURE. No network access."""
 import json
 import os
 import struct
 
 import pytest
 
-from modpot import core
-from modpot.cli import main
+from modlure import core
+from modlure.cli import main
 
 DEMO = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "demos", "01-basic", "capture.hexlog"

@@ -21,8 +21,8 @@ matters far more than a data read.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/09-setpoint-override/capture.hexlog
-python -m modpot --format json analyze demos/09-setpoint-override/capture.hexlog --min-severity high | jq '.[].reasons'
+python -m modlure analyze demos/09-setpoint-override/capture.hexlog
+python -m modlure --format json analyze demos/09-setpoint-override/capture.hexlog --min-severity high | jq '.[].reasons'
 ```
 
 ## Expected result

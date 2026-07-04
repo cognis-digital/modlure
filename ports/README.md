@@ -1,4 +1,4 @@
-# Ports of modpot
+# Ports of modlure
 
 The same **core check** ported across languages: decode one Modbus/TCP frame
 from hex and classify it into a severity (`info` / `low` / `medium` / `high`)
@@ -8,7 +8,7 @@ high-severity (write/control/recon) — handy as a CI gate.
 
 | Language | Path | Run | Tests |
 |---|---|---|---|
-| Python (reference) | `../modpot/` | `modpot analyze capture.hexlog` | `pytest` (135+) |
+| Python (reference) | `../modlure/` | `modlure analyze capture.hexlog` | `pytest` (135+) |
 | JavaScript / Node | `javascript/` | `echo 000200000006010600010001 \| node ports/javascript/index.js` | `node test.js` |
 | TypeScript | `typescript/` | `npm run build && node dist/...` | `npm test` (tsc + node --test) |
 | Go | `go/` | `cd ports/go && go run . 000100000006010300000001` | `go test ./...` |

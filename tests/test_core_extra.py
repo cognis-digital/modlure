@@ -1,12 +1,12 @@
-"""Extended OFFLINE tests for modpot.core — parsing, classification,
+"""Extended OFFLINE tests for modlure.core — parsing, classification,
 response building, SARIF, hexlog iteration, and the passive summary.
 """
 import struct
 
 import pytest
 
-from modpot import core
-from modpot.core import (
+from modlure import core
+from modlure.core import (
     parse_frame,
     build_response,
     classify_event,

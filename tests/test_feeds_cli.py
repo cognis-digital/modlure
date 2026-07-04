@@ -1,11 +1,11 @@
-"""Offline CLI tests for `modpot feeds` and `analyze --enrich --offline`."""
+"""Offline CLI tests for `modlure feeds` and `analyze --enrich --offline`."""
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-from modpot.cli import main
+from modlure.cli import main
 
 FIXTURE_CACHE = Path(__file__).parent / "fixtures" / "feeds_cache"
 FEODO_IP = "203.0.113.66"
@@ -36,7 +36,7 @@ def test_feeds_get_rejects_unconsumed_feed(capsys):
     rc = main(["feeds", "get", "cisa-kev", "--offline"])
     err = capsys.readouterr().err
     assert rc == 2
-    assert "not consumed by modpot" in err
+    assert "not consumed by modlure" in err
 
 
 def test_analyze_enrich_offline_escalates(tmp_path, capsys):

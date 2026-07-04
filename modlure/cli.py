@@ -1,4 +1,4 @@
-"""Command-line interface for MODPOT.
+"""Command-line interface for MODLURE.
 
 Subcommands
 -----------
@@ -10,16 +10,16 @@ Subcommands
 Examples
 --------
   # Analyze a captured hex log and pretty-print a table
-  modpot analyze demos/01-basic/capture.hexlog
+  modlure analyze demos/01-basic/capture.hexlog
 
   # Emit JSON for piping into a SIEM / CI gate
-  modpot analyze demos/01-basic/capture.hexlog --format json
+  modlure analyze demos/01-basic/capture.hexlog --format json
 
   # Read frames from stdin
-  cat capture.hexlog | modpot analyze -
+  cat capture.hexlog | modlure analyze -
 
   # Run a real honeypot on port 5020 (no root needed)
-  modpot serve --host 0.0.0.0 --port 5020
+  modlure serve --host 0.0.0.0 --port 5020
 
 Exit codes
 ----------
@@ -134,7 +134,7 @@ def _cmd_serve(args: argparse.Namespace) -> int:
         return 2
     srv.listen(8)
     print(
-        f"[modpot] honeypot listening on {args.host}:{args.port} "
+        f"[modlure] honeypot listening on {args.host}:{args.port} "
         f"(Ctrl-C to stop)",
         file=sys.stderr,
     )
@@ -172,7 +172,7 @@ def _cmd_serve(args: argparse.Namespace) -> int:
                         saw_high = True
                     print(json.dumps(event), flush=True)
     except KeyboardInterrupt:
-        print("\n[modpot] stopped", file=sys.stderr)
+        print("\n[modlure] stopped", file=sys.stderr)
     finally:
         srv.close()
     return 1 if saw_high else 0
@@ -251,7 +251,7 @@ def _recv_exact(conn: socket.socket, n: int) -> bytes | None:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog=TOOL_NAME,
-        description="MODPOT - a standard-library Modbus TCP honeypot that "
+        description="MODLURE - a standard-library Modbus TCP honeypot that "
         "logs attacker register reads/writes as JSON.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
@@ -275,7 +275,7 @@ def build_parser() -> argparse.ArgumentParser:
         "capture log into JSON threat events.",
     )
     # Allow --format after the subcommand too (natural position), e.g.
-    #   modpot analyze capture.hexlog --format json
+    #   modlure analyze capture.hexlog --format json
     a.add_argument(
         "--format",
         choices=["table", "json", "sarif"],

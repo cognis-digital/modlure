@@ -1,8 +1,8 @@
 # Cognis interop map
 
-How **modpot** fits the wider Cognis suite — a composable set of defensive, analytical
+How **modlure** fits the wider Cognis suite — a composable set of defensive, analytical
 tools that all run on your own hardware and speak plain **JSON** (or an OpenAI-compatible
-**`/v1`**). `modpot` lives in the **Threat intel / detections** cluster.
+**`/v1`**). `modlure` lives in the **Threat intel / detections** cluster.
 
 ```mermaid
 graph LR
@@ -28,35 +28,35 @@ graph LR
 
 | from | relation | to |
 |---|---|---|
-| `modpot` | JSON findings compose with | [`stixgen`](https://github.com/cognis-digital/stixgen), [`iocextract`](https://github.com/cognis-digital/iocextract), [`attackmap`](https://github.com/cognis-digital/attackmap), [`ttphunt`](https://github.com/cognis-digital/ttphunt) |
-| `modpot` | AI add-ins are served `/v1` by | [`edgemesh`](https://github.com/cognis-digital/edgemesh) (your fleet) |
-| `modpot` | findings can be narrated / reasoned over by | [`humind`](https://github.com/cognis-digital/humind) -> [`agentlex`](https://github.com/cognis-digital/agentlex) |
-| `modpot` | export to intel formats via | [`stixgen`](https://github.com/cognis-digital/stixgen) (STIX) / [`attackmap`](https://github.com/cognis-digital/attackmap) (ATT&CK) |
+| `modlure` | JSON findings compose with | [`stixgen`](https://github.com/cognis-digital/stixgen), [`iocextract`](https://github.com/cognis-digital/iocextract), [`attackmap`](https://github.com/cognis-digital/attackmap), [`ttphunt`](https://github.com/cognis-digital/ttphunt) |
+| `modlure` | AI add-ins are served `/v1` by | [`edgemesh`](https://github.com/cognis-digital/edgemesh) (your fleet) |
+| `modlure` | findings can be narrated / reasoned over by | [`humind`](https://github.com/cognis-digital/humind) -> [`agentlex`](https://github.com/cognis-digital/agentlex) |
+| `modlure` | export to intel formats via | [`stixgen`](https://github.com/cognis-digital/stixgen) (STIX) / [`attackmap`](https://github.com/cognis-digital/attackmap) (ATT&CK) |
 
 ## Composition patterns
 
 Everything reads/writes JSON, so tools chain with ordinary pipes; nothing leaves the box.
 
-**1 — chain within the threat intel / detections cluster.** `modpot` output feeds the next tool:
+**1 — chain within the threat intel / detections cluster.** `modlure` output feeds the next tool:
 ```bash
-modpot ... --format json > out.json          # this tool's findings (see `modpot --help`)
+modlure ... --format json > out.json          # this tool's findings (see `modlure --help`)
 stixgen ... < out.json                      # the cluster sibling consumes them
 ```
 
 **2 — enrich with the private-AI backbone.** Point add-ins at one `/v1` for the whole fleet:
 ```bash
 export OPENAI_BASE_URL=http://localhost:8080/v1   # an edgemesh gateway over your fleet
-modpot ...                                         # vision / reasoning add-ins light up
+modlure ...                                         # vision / reasoning add-ins light up
 ```
 
 **3 — export findings to your SOC's formats.**
 ```bash
-modpot ... --format json | stixgen from-json > bundle.stix.json   # STIX 2.1
-modpot ... --format json | attackmap map > attack.json            # ATT&CK techniques
+modlure ... --format json | stixgen from-json > bundle.stix.json   # STIX 2.1
+modlure ... --format json | attackmap map > attack.json            # ATT&CK techniques
 ```
 
-**4 — narrate through cognition + agents.** `humind` extracts salience from `modpot`'s
-output; `agentlex` holds it as KB facts and fires Horn rules to escalate. `modpot` slots
+**4 — narrate through cognition + agents.** `humind` extracts salience from `modlure`'s
+output; `agentlex` holds it as KB facts and fires Horn rules to escalate. `modlure` slots
 into the **Threat-intel export** stack below.
 
 ## Reference stacks

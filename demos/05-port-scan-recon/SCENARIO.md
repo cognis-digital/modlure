@@ -21,8 +21,8 @@ and a junk function code to see how the stack reacts.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/05-port-scan-recon/capture.hexlog
-python -m modpot --format sarif analyze demos/05-port-scan-recon/capture.hexlog > recon.sarif
+python -m modlure analyze demos/05-port-scan-recon/capture.hexlog
+python -m modlure --format sarif analyze demos/05-port-scan-recon/capture.hexlog > recon.sarif
 ```
 
 ## Expected result

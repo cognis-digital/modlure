@@ -21,7 +21,7 @@ all reasonable quantities (<= 125):
 ## Run it
 
 ```bash
-python -m modpot analyze demos/08-benign-scada-poll/capture.hexlog
+python -m modlure analyze demos/08-benign-scada-poll/capture.hexlog
 echo "exit=$?"   # expect 0
 ```
 

@@ -1,20 +1,20 @@
-"""MODPOT MCP server — exposes scan() as an MCP tool for Cognis.Studio."""
+"""MODLURE MCP server — exposes scan() as an MCP tool for Cognis.Studio."""
 from __future__ import annotations
-from modpot.core import scan, to_json
+from modlure.core import scan, to_json
 
 def serve() -> int:
     """Start an MCP stdio server. Requires the optional 'mcp' extra:
-        pip install "cognis-modpot[mcp]"
+        pip install "modlure[mcp]"
     """
     try:
         from mcp.server.fastmcp import FastMCP
     except Exception:
-        print("Install the MCP extra: pip install 'cognis-modpot[mcp]'")
+        print("Install the MCP extra: pip install 'modlure[mcp]'")
         return 1
-    app = FastMCP("modpot")
+    app = FastMCP("modlure")
 
     @app.tool()
-    def modpot_scan(target: str) -> str:
+    def modlure_scan(target: str) -> str:
         """Spin up a high-interaction Modbus/DNP3 ICS honeypot that logs attacker register reads/writes as structured JSON.. Returns JSON findings."""
         return to_json(scan(target))
 

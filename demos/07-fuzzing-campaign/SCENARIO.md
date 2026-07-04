@@ -20,8 +20,8 @@ disappears, which is exactly what this demo proves.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/07-fuzzing-campaign/capture.hexlog
-python -m modpot --format json analyze demos/07-fuzzing-campaign/capture.hexlog
+python -m modlure analyze demos/07-fuzzing-campaign/capture.hexlog
+python -m modlure --format json analyze demos/07-fuzzing-campaign/capture.hexlog
 ```
 
 ## Expected result
@@ -31,7 +31,7 @@ malformed frame is still recorded with a reason. Exit status **1**.
 
 ## How to act
 
-Fuzzing rarely succeeds against `modpot` (it is a tiny stdlib parser), but
+Fuzzing rarely succeeds against `modlure` (it is a tiny stdlib parser), but
 a fuzzing campaign signals targeted interest. Capture full PCAP for the
 source, rate-limit/block it, and make sure the real device behind the
 decoy is not directly reachable.

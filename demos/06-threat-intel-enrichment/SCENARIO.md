@@ -7,11 +7,11 @@ Tracker** C2 blocklist fixture (Emotet).
 ## Run it (air-gap, no network)
 
 The repo ships a trimmed feed cache under `tests/fixtures/feeds_cache`. Point
-MODPOT at it and analyze with enrichment:
+MODLURE at it and analyze with enrichment:
 
 ```sh
 COGNIS_FEEDS_CACHE=tests/fixtures/feeds_cache \
-  python -m modpot analyze demos/06-threat-intel-enrichment/capture.hexlog \
+  python -m modlure analyze demos/06-threat-intel-enrichment/capture.hexlog \
   --enrich --offline --format json
 ```
 
@@ -36,6 +36,6 @@ The event from `203.0.113.66` is escalated to **high** severity with a
 On a connected box, populate the real cache first, then drop `--offline`:
 
 ```sh
-python -m modpot feeds update            # fetch feodo-c2 + threatfox
-python -m modpot analyze ... --enrich    # scores against live data
+python -m modlure feeds update            # fetch feodo-c2 + threatfox
+python -m modlure analyze ... --enrich    # scores against live data
 ```

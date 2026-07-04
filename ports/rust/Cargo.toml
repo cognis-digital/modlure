@@ -1,9 +1,9 @@
 [package]
-name = "modpot"
+name = "modlure"
 version = "0.2.0"
 edition = "2021"
 license = "LicenseRef-COCL-1.0"
 
 [[bin]]
-name = "modpot"
+name = "modlure"
 path = "src/main.rs"

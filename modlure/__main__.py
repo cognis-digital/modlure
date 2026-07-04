@@ -1,4 +1,4 @@
-from modpot.cli import main
+from modlure.cli import main
 import sys
 
 sys.exit(main())

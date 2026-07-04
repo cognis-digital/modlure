@@ -3,7 +3,7 @@
 ## Where this came from
 
 A small municipal water utility exposed a Modbus PLC on TCP/502 through a
-misconfigured cellular gateway. `modpot` was deployed as a decoy in front
+misconfigured cellular gateway. `modlure` was deployed as a decoy in front
 of the real control LAN. Overnight, a peer from a Tor exit range
 (`185.220.101.7`) connected after the normal HMI (`10.0.4.10`) baseline
 poll and began issuing control writes against the chlorine dosing loop.
@@ -21,8 +21,8 @@ poll and began issuing control writes against the chlorine dosing loop.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/04-water-treatment-tamper/capture.hexlog
-python -m modpot --format json analyze demos/04-water-treatment-tamper/capture.hexlog --min-severity high
+python -m modlure analyze demos/04-water-treatment-tamper/capture.hexlog
+python -m modlure --format json analyze demos/04-water-treatment-tamper/capture.hexlog --min-severity high
 ```
 
 ## Expected result

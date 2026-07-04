@@ -16,8 +16,8 @@ hostile source mixed in (recon + a control write) and one oversized read.
 ## Run it
 
 ```bash
-python -m modpot analyze demos/03-mixed/capture.hexlog
-python -m modpot --format json analyze demos/03-mixed/capture.hexlog --min-severity medium
+python -m modlure analyze demos/03-mixed/capture.hexlog
+python -m modlure --format json analyze demos/03-mixed/capture.hexlog --min-severity medium
 ```
 
 ## Expected result

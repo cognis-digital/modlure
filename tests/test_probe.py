@@ -8,8 +8,8 @@ import struct
 
 import pytest
 
-from modpot import probe
-from modpot.probe import (
+from modlure import probe
+from modlure.probe import (
     Probe,
     Scope,
     Target,

@@ -2,9 +2,9 @@
 
 ## Threat-intel feeds consumed for enrichment
 
-MODPOT scores attacker source IPs against these authoritative, keyless feeds
-(bundled catalog: [`modpot/data_feeds_2026.json`](modpot/data_feeds_2026.json),
-ingestion: [`modpot/datafeeds.py`](modpot/datafeeds.py)). Edge/air-gap: fetched
+MODLURE scores attacker source IPs against these authoritative, keyless feeds
+(bundled catalog: [`modlure/data_feeds_2026.json`](modlure/data_feeds_2026.json),
+ingestion: [`modlure/datafeeds.py`](modlure/datafeeds.py)). Edge/air-gap: fetched
 once, cached, re-served `--offline`.
 
 - **`feodo-c2`** · abuse.ch Feodo Tracker active botnet C2 IP blocklist · https://feodotracker.abuse.ch/downloads/ipblocklist.json

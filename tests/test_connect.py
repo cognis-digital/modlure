@@ -1,4 +1,4 @@
-"""Smoke test for the native cognis-connect emit (`modpot.connect`)."""
+"""Smoke test for the native cognis-connect emit (`modlure.connect`)."""
 from __future__ import annotations
 
 import importlib
@@ -8,7 +8,7 @@ import sys
 import pytest
 
 cc = pytest.importorskip("cognis_connect")          # optional [connect] extra
-mod = importlib.import_module("modpot.connect")
+mod = importlib.import_module("modlure.connect")
 
 
 def test_map_record_returns_dict():

@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: { name: modpot, labels: { app: modpot } }
+metadata: { name: modlure, labels: { app: modlure } }
 spec:
   replicas: 1
-  selector: { matchLabels: { app: modpot } }
+  selector: { matchLabels: { app: modlure } }
   template:
-    metadata: { labels: { app: modpot } }
+    metadata: { labels: { app: modlure } }
     spec:
       containers:
-        - name: modpot
-          image: ghcr.io/cognis-digital/modpot:latest
+        - name: modlure
+          image: ghcr.io/cognis-digital/modlure:latest
           ports: [{ containerPort: 8000 }]
           resources:
             requests: { cpu: "50m", memory: "64Mi" }
@@ -17,7 +17,7 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: { name: modpot }
+metadata: { name: modlure }
 spec:
-  selector: { app: modpot }
+  selector: { app: modlure }
   ports: [{ port: 80, targetPort: 8000 }]

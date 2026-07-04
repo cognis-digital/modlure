@@ -1,6 +1,6 @@
 # Demo 01 - Basic Modbus honeypot capture analysis
 
-This demo shows MODPOT decoding a small hex capture log of Modbus TCP
+This demo shows MODLURE decoding a small hex capture log of Modbus TCP
 frames hitting a honeypot and classifying each one into a JSON threat
 event with a severity.
 
@@ -20,8 +20,8 @@ Comments (`#`) and blank lines are ignored. The frames represent:
 ## Run it
 
 ```
-python -m modpot analyze demos/01-basic/capture.hexlog
-python -m modpot analyze demos/01-basic/capture.hexlog --format json
+python -m modlure analyze demos/01-basic/capture.hexlog
+python -m modlure analyze demos/01-basic/capture.hexlog --format json
 ```
 
 ## Expected result
@@ -31,5 +31,5 @@ and the report-server-id recon), one `medium` (oversized read), one
 `medium` (malformed frame), and one `low` (the benign read).
 
 Because at least one `high`-severity event is present, the process exits
-with status **1** -- making `modpot analyze ... --format json` usable
+with status **1** -- making `modlure analyze ... --format json` usable
 directly as a CI / alerting gate against a captured honeypot log.
